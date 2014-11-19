@@ -1,6 +1,10 @@
 このソフトウェアはIoTのgateway部をrubyで実装したものです。 主な機能は以下の通りです。
 
+
 一定間隔でrubyiot_deviceから情報を受信します。
+
 一定間隔でrubyiot_serverに情報を送信します。
+
 rubyiot_serverから設定情報を受け取りrubyiot_deviceに設定します。
+
 

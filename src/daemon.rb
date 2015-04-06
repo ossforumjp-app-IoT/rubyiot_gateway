@@ -4,22 +4,22 @@ require_relative 'core'
 
 # RaspberyPi上で動作するデーモンオブジェクト
 # @author FAE
+
 class SensingControlDaemon
-  # デーモンの初期化を行うメソッド
-  def initialize
+    # デーモンの初期化を行うメソッド
+    def initialize
     @term_flag         = false    # デーモン停止用フラグ
     @loop_count        = 0        # デーモンのメインループ回数
     @atomic_interval   = 1        # デーモン動作周期周期 (秒)
     @db_store_interval = 2        # DBデータ格納周期
     @db_load_interval  = 2        # DBデータ取得周期
 
-    server = 'rubyiot.rcloud.jp'
-    port   = 80
+    @cloudserver = 'rubyiot.rcloud.jp'
+    @cloudport   = 80
+    @localserver = 'localhost'
+    @localport   = 3131
 
     @sensor  = Sensor.new         # センサオブジェクト生成
-    @ac      = Airconditioner.new # エアコン制御オブジェクト生成
-    @localdb = LocalDb.new        # ローカルDBオブジェクト生成
-    @clouddb = CloudDb.new(server,port)        # クラウドDBオブジェクト生成
 
     @limit_min = -20
     @limit_max = 45
@@ -29,8 +29,14 @@ class SensingControlDaemon
     @value = 0
     @operation_id = 0
 
+    @settime = Time.new
+    @interval = 3
+
     @setopeflag = 0
-    @sensor_id = 9 
+    #@sensor_id = 9 
+    @sensor_id = 1 
+    @local_sensor_id = 15
+    @gateway_id = 1
   end
 
   # デーモン処理を実行するメソッド
@@ -56,26 +62,53 @@ class SensingControlDaemon
 
   # デーモンのメイン処理を実行するメソッド
   def main
+
+    @localdb = LocalDb.new(@localserver,@localport)        # ローカルDBオブジェクト生成
+    @clouddb = CloudDb.new(@cloudserver,@cloudport)        # クラウドDBオブジェクト生成
+
+begin
+   response = @localdb.getSensor(@gateway_id)
+   puts "ローカルからの応答 #{response}"
+rescue
+   puts "ローカル準備中"
+   sleep 3
+   retry
+end
+
+begin
+   response = @clouddb.getSensor(@gateway_id)
+   puts "クラウドからの応答 #{response}"
+rescue
+   puts "クラウド準備中"
+   sleep 3
+   retry
+end
+
+    @settime = Time.now
+    @settime = @settime + @interval
+
     loop do
       # 終了フラグが立っていたらメインループを抜けて終了
       break if @term_flag == true
 
       puts "loop = #{@loop_count}"
 
-      # 温度取得処理
 loop do
-      @sensor.recvdata
-      #temperature = @sensor.sense.to_i
-      @dev_status = @sensor.get_device_status.to_i
-      @temperature = @sensor.sense.to_f
-      @fan_status = @sensor.get_fan_status.to_i
-      @fail_status  = @sensor.get_fail_status.to_i
+         puts "start"
 
-      if @dev_status != 3 then
-        puts "dev status error : {#@dev_status}"
-        next
-      end
-      break
+         # センサから情報を取得
+         @sensor.recvdata
+
+         @dev_status = @sensor.get_device_status.to_i
+         @temperature = @sensor.sense.to_f
+         @fan_status = @sensor.get_fan_status.to_i
+         @fail_status  = @sensor.get_fail_status.to_i
+
+         if @dev_status != 3 then
+           puts "dev status error : {#@dev_status}"
+           next
+         end
+         break
 end
 
       puts "------ INPUT DATA -------"
@@ -87,60 +120,68 @@ end
       puts "-------------------------"
 
       # DB格納処理
-      if 0 == (@loop_count % @db_store_interval) then
+      if Time.now > @settime then
 
-# device の登録部分はパスする
-# ここは後回し
-#        gateway_id = 1
-#	status = 0
-#	response = @clouddb.setDevice("0013a2004066107e",0x00,0x11,0x00)
-#	puts "  クラウドからの応答：#{response.body}"
-
+        @settime = Time.now + @interval
 
 	# センシングデータ格納処理
         timestamp = Time.now.strftime("%Y/%m/%d %H:%M:%S")
-#       @localdb.storeSensingData(0, timestamp, temperature)
+begin
+        @localdb.storeSensingData(@local_sensor_id, timestamp, @temperature)
         @clouddb.storeSensingData(@sensor_id, timestamp, @temperature)
+rescue
+	puts "db store data error"
+end
 
-        if @setopeflag == 1 then
-          if @fan_status == @value.to_i then
-            puts "##### Sensor 設定成功 #####"
-	    response_hash = @clouddb.setOperationStatus(@operation_id,2)
-            @setopeflag = 0
-          else
-            puts "##### Sensor 設定失敗 #####"
-	    response_hash = @clouddb.setOperationStatus(@operation_id,1)
-          end
-        end
-
+        # 温度状態が異常の場合、cloudにalertを通知する
         if @fail_status == 1 then
-          puts "##### 高温異常状態検出 #####"
+          #puts "##### 高温異常状態検出 #####"
+begin
           response = @clouddb.setSensorAlert(@sensor_id,@temperature,@limit_min,@limit_max)
-          puts "##### 応答: #{response.body}"
+rescue
+	  puts "clouddb setSensorAlert Error"
+end
+          #puts "##### 応答: #{response.body}"
         end
         if @fail_status == 2 then
-          puts "##### 低温異常状態検出 #####"
+          #puts "##### 低温異常状態検出 #####"
+begin
           response = @clouddb.setSensorAlert(@sensor_id,@temperature,@limit_min,@limit_max)
-          puts "##### 応答: #{response.body}"
+rescue
+	  puts "clouddb setSensorAlert Error"
+end
+          #puts "##### 応答: #{response.body}"
         end
 
-      end
+      end 
 
       # DB取得処理
-      if 0 == (@loop_count % @db_load_interval) then
+catch :b_loop do
+        if 0 == (@loop_count % @db_load_interval) then
 	# センシングパラメータ取得処理
+begin
 	response_hash = @clouddb.getMonitorRange(@sensor_id)
+rescue
+        puts "get motion range error"
+        throw :b_loop
+end
 	@limit_min = response_hash["min"]
 	@limit_max = response_hash["max"]
         puts "threshold min=#{@limit_min} max=#{@limit_max}"
 
         #今回gateway_id は1固定
+begin
 	response_hash = @clouddb.getOperation(1)
+rescue
+	puts "get operation error"
+        throw :b_loop
+end
         puts "control info = #{response_hash}"
         puts response_hash.size
 
         if response_hash.size == 0 then
           puts "response_hash null"
+          #@value = @fan_status
         else
 	  xxx = response_hash.values
 	  
@@ -149,16 +190,16 @@ end
            
           puts "operation_id = #{@operation_id} / value = #{@value}"
 
-          # とりあえず2(完了)を入れる
-          #   => sensorから取得した fan status を確認し @valueの値と一致すれば
-          #      cloudに通知する
-	  #response_hash = @clouddb.setOperationStatus(@operation_id,2)
-
-          @setopeflag = 1
-
+begin
+	response_hash = @clouddb.setOperationStatus(@operation_id,0)
+rescue
+        throw :b_loop
+end
         end
-
       end
+end # :b_loop do
+
+  # ローカルDBの操作指示は未サポートとする
 
       # デバッグ用でテーブル内情報を表示
 #     @localdb.loadSensingData
@@ -169,7 +210,12 @@ end
       puts "value     = {#@value}"
       puts "-------------------------"
 
+begin
       @sensor.senddata(@limit_max.to_f,@limit_min.to_f,@value)
+rescue
+     puts "senddata skip"
+end
+
 
       # ループ周期
       sleep @atomic_interval

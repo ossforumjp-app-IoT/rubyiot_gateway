@@ -1,5 +1,6 @@
 #!/usr/bin/ruby
 
+require 'rubygems'
 require 'uri'
 require 'net/http'
 require 'active_record'
@@ -17,54 +18,50 @@ end
 # ラズベリーパイ内に持つＤＢへのアクセスを実装する
 class LocalDb
   # ローカルDBの初期化を行うメソッド
-  def initialize
-    ActiveRecord::Base.establish_connection(
-      'adapter'  => 'sqlite3',
-      'database' => 'db/localdb.db'
-    )
+  def initialize(server, port)
+    @http = Net::HTTP.new(server, port)
   end
 
-  # センサ情報設定メソッド
-  def setSensorInfo(sensor_id)
-    LocalDbData.update(
-      :device_property_id => sensor_id,
-      :value => sensing_data,
-      :measured_at => timestamp
-    )
-  end
-
-  # センサ情報取得メソッド
-  def getSensorInfo(sensor_id)
-  end
-
-  # 監視値設定メソッド
-  def setMonitorRange(sensor_id)
-  end
-
-  # 監視値取得メソッド
+  # センサの監視値（上限値・下限値）を取得するメソッド
+  #   @param [Integer] センサーID
+  #
+  # クラウドにアクセスして監視値（上限値・下限値）を取得します。
+  # メソッドの結果としてはハッシュで返します。
   def getMonitorRange(sensor_id)
+    query_hash = { 'sensor_id' => sensor_id }
+    debug("GET Query Data : #{query_hash.to_query}")
+    response = @http.get("/api/monitor?#{query_hash.to_query}")
+    JSON.parse(response.body)
   end
 
-  # 温度異常イベント登録メソッド
-  def setMonitorAlert(sensor_id)
-  end
-
-  # 温度異常イベント取得メソッド
-  def getMonitorAlert(sensor_id)
-  end
-
+  # ローカルDBへのセンサデータ蓄積メソッド
+  #   @param [Integer] センサーID
+  #   @param [String]  タイムスタンプ
+  #   @param [Integer] センシングデータ
   def storeSensingData(sensor_id, timestamp, sensing_data)
-#    LocalDbData.create(
-#      :device_property_id => sensor_id,
-#      :value => sensing_data,
-#      :measured_at => timestamp
-#    )
+    debug("storeSensingData call")
+    query_hash = {sensor_id => sensing_data.to_s}
+    post_data = query_hash.to_json
+    debug("POST Data : #{post_data}")
+    @http.post('/api/sensor_data', post_data)
   end
 
   # センサデータ取得メソッド
   def loadSensingData
     LocalDbData.find(:all)
-#   LocalDbData.find_all_by_id([1,2])
+  end
+
+  # センサ情報取得メソッド
+  #   @param [Integer] ゲートウェイID
+  def getSensor(gateway_id)
+    query_hash = { 'gateway_id' => gateway_id }
+    debug("GET Query Data : #{query_hash.to_query}")
+    response = @http.get("/api/sensor?#{query_hash.to_query}")
+    JSON.parse(response.body)
+  end
+
+  def debug(msg)
+    puts "  " + msg
   end
 end
 
@@ -152,8 +149,6 @@ class CloudDb
 
   # リモート操作指示状態を取得するメソッド
   #   @param [Integer] ゲートウェイID
-  #
-  # クラウドにアクセスしてリモート操作指示状態を取得します。
   def getOperation(gateway_id)
     query_hash = { 'gateway_id' => gateway_id }
     debug("GET Query Data : #{query_hash.to_query}")
@@ -161,7 +156,9 @@ class CloudDb
     JSON.parse(response.body)
   end
 
-  # 
+  # 操作状態設定メソッド
+  #   @param [Integer] ゲートウェイID
+  #   @param [Integer] 状態
   def setOperationStatus(gateway_id, status)
     debug("setOperationStatus call")
     query_hash = {gateway_id => status.to_s}
@@ -170,8 +167,11 @@ class CloudDb
     @http.post('/api/operation_status', post_data)
   end
 
-  # センサ情報設定メソッド
-  def setSensorInfo()
+  # センサ監視値設定メソッド
+  #   @param [Integer] センサID
+  #   @param [Integer] 下限値
+  #   @param [Integer] 上限値
+  def setSensorInfo(sensor_id, min, max)
     monitor_range = { 'min' => min.to_s, 'max' => max.to_s }
     query_hash = { sensor_id => monitor_range }
     post_data = query_hash.to_json
@@ -179,6 +179,11 @@ class CloudDb
     @http.post('/api/monitor', post_data)
   end
 
+  # センサalert設定メソッド
+  #   @param [Integer] センサID
+  #   @param [Integer] 測定値
+  #   @param [Integer] 下限値
+  #   @param [Integer] 上限値
   def setSensorAlert(sensor_id, value, min, max)
     monitor_range = {'value' => value, 'min' => min, 'max' => max}
     s_alert = { sensor_id => monitor_range }
@@ -187,21 +192,103 @@ class CloudDb
     @http.post('/api/sensor_alert', post_data)
   end
 
+  # センサ情報取得メソッド
+  #   @param [Integer] ゲートウェイID
+  def getSensor(gateway_id)
+    query_hash = { 'gateway_id' => gateway_id }
+    debug("GET Query Data : #{query_hash.to_query}")
+    response = @http.get("/api/sensor?#{query_hash.to_query}")
+    #response = @http.get("/api/sensor?gateway_id=1")
+    JSON.parse(response.body)
+  end
+
+  # コントローラ情報取得メソッド
+  #   @param [Integer] ゲートウェイID
+  def getController(gateway_id)
+    query_hash = { 'gateway_id' => gateway_id }
+    debug("GET Query Data : #{query_hash.to_query}")
+    response = @http.get("/api/controller?#{query_hash.to_query}")
+    JSON.parse(response.body)
+  end
+
+  # デバイス情報設定メソッド
+  def postDevice
+#    huid_hash = {'hardware_uid' => '0013a2004066107e',
+#                 		'class_group_code' => '0x00',
+#		                 'class_code' => '0x11',
+#                 'properties' => [{ 
+#				   '0x00' => 'sensor',
+#                                   '0x01' => 'controller',
+#				   'type' => 'sensor'},
+#				   {'0x02' => 'sensor',
+#				   '0x03' => 'controller',
+#				   'type' => 'controller'}]}
+
+    huid_hash = {'hardware_uid' => '0013a2004066cccc',
+		 'class_group_code' => '0x00',
+		 'class_code' => '0x00',
+                 'properties' => [
+				{ 
+		                'class_group_code' => '0x00',
+		                'class_code' => '0x00',
+				'property_code'=>'0x30',
+				   'type' => 'sensor'},
+				{ 
+		                'class_group_code' => '0x00',
+		                'class_code' => '0x00',
+				'property_code'=>'0x31',
+				   'type' => 'controller'}
+				   ]}
+    post_data = huid_hash.to_json
+    debug("POST Data : #{post_data}")
+    response = @http.post('/api/device', post_data)
+    puts "--- 応答 ---"
+    puts response.body
+    #JSON.parse(response.body)
+  end
+
+  # センサ情報設定メソッド
+  #   @param [Integer] センサID
+  #   @param [String] センサ名
+  def postApiSensor(sensor_id, name)
+    aaaa_hash = {'name' => name}
+    test_hash = { sensor_id => aaaa_hash }
+    post_data = test_hash.to_json
+    debug("POST Data : #{post_data}")
+    @http.post('/api/sensor', post_data)
+  end
+
+  # コントローラ情報設定メソッド
+  #   @param [Integer] コントローラID
+  #   @param [String] コントローラ名
+  def postApiController(controller_id, name)
+    aaaa_hash = {'name' => name}
+    test_hash = { controller_id => aaaa_hash }
+    post_data = test_hash.to_json
+    debug("POST Data : #{post_data}")
+    @http.post('/api/controller', post_data)
+  end
+
+  # センサ情報設定メソッド
+  #   @param [Integer] センサID
+  #   @param [Integer] 測定値
+  def postApiSensorData(sensor_id, val)
+    test_hash = { sensor_id => val }
+    post_data = test_hash.to_json
+    debug("POST Data : #{post_data}")
+    @http.post('/api/sensor_data', post_data)
+  end
+
+  # センサ情報取得メソッド
+  #   @param [Integer] センサID
+  def getSensorData(sensor_id)
+    response = @http.get('/api/sensor_data?sensor_id=11&start=2015-01-23+00:00:00&span=5-minutely')
+    JSON.parse(response.body)
+  end
 
   def debug(msg)
     puts "  " + msg
   end
-end
-
-
-# エアコン制御クラス
-class Airconditioner
-  # コンストラクタでアドレスとか指定しておく必要がある
-
-  # ONメソッド
-
-  # OFFメソッド
-
 end
 
 # センサクラス
@@ -250,29 +337,25 @@ class Sensor
   end
 
 
-  # 装置状態
+  # 装置状態取得
   def get_device_status
     return @zigrecv.get_device_status
   end
 
-  # fan状態
+  # fan状態取得
   def get_fan_status
     return @zigrecv.get_fan_status
   end
 
-  # 温度
+  # 温度情報取得
   def sense
     return @zigrecv.get_temp
   end
 
-  # 異常状態
+  # 異常状態取得
   def get_fail_status
     return @zigrecv.get_fail_status
   end
 
 end
-
-
-#cloudDb = CloudDb.new()
-#cloudDb.storeSensingData('id','time','data') 
 

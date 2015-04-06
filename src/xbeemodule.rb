@@ -1,167 +1,6 @@
 #!/usr/bin/ruby
 
-# XBeeモジュール用のフレームをRAWデータで取り扱うクラス
-#
-# XBeeモジュールのフレーム構造
-# +--+----+--------+--+
-# |7E|    |        |  |
-# +--+----+--------+--+
-#  |  |    |        |
-#  |  |    |        +--- チェックサム(データ部を足し合わせた値の下位8Byteを反転した値
-#  |  |    +------------ データ部
-#  |  +----------------- データ長(データ部のByte長)
-#  +-------------------- 開始コード(7E固定)
-#
-# @todo @frame_bin_dataがnilの場合の処理全然書いてない。
-#       対応案1: 初期化で引数を与えるようにしてnilを許さないようにするか
-#       対応案2: 各メソッドで@frame_bin_dataがnilの場合はnilを戻すようにする
-
 require 'serialport'
-
-class XBeeModuleRawFrame
-  :public
-  def initialize()
-    @frame_bin_data = nil
-  end
-
-  # フレームのRAWデータを16進文字列で設定するメソッド
-  def data_hex=(hex)
-    no_space_hex = [hex.tr(" ", "")]
-    @frame_bin_data = no_space_hex.pack("H*")
-  end
-
-  # フレームのRAWデータのバイナリを設定するメソッド
-  def data=(bin)
-    @frame_bin_data = bin
-  end
-
-  # フレームのRAWデータのデータ長を取得するメソッド
-  def length
-    @frame_bin_data.length
-  end
-
-  # フレームのRAWデータのデータ長を16進文字列で取得するメソッド
-  def length_hex
-    sprintf("%04x", length)
-  end
-
-  # フレームのRAWデータのチェックサムを取得するメソッド
-  def sum
-    ~(@frame_bin_data.sum) & 0xFF
-  end
-
-  # フレームのRAWデータのチェックサムを16進文字列で取得するメソッド
-  def sum_hex
-    sprintf("%02x", sum)
-  end
-
-  # フレームからコマンドIDを16進文字列で設定するメソッド
-  def command_id_hex=(hex)
-    @frame_bin_data[0] = [hex].pack("H*")
-  end
-
-  # フレームからコマンドIDを16進文字列を取得するメソッド
-  def command_id_hex
-    @frame_bin_data[0].unpack("H*")
-  end
-
-  # フレーム全体をバイナリを取得するメソッド
-  def frame
-    # データが設定されていない状態の場合はnilを返す
-    return nil if ( nil == @frame_bin_data )
-
-    # フレームに開始コードを追加
-    binframe =  ["7E"].pack("H*")
-
-    # フレームにデータ長を追加
-    binframe += [length_hex].pack("H*")
-
-    # フレームにデータを追加
-    binframe += @frame_bin_data
-
-    # フレームにチェックサムを追加
-    binframe += [sum_hex].pack("H*")
-  end
-
-  # フレーム全体を16進文字列で取得するメソッド
-  def frame_hex
-    frame.unpack("H*")
-  end
-end
-
-
-# XBeeモジュール用のZigBee Transmit Requestフレームを取り扱うクラス
-class ZigBeeTransmitRequestFrame < XBeeModuleRawFrame
-  # フレームデータをセットするメソッド
-  def data=(frame_id_hex, addr64_hex, addr16_hex, broadcast_range_radius_hex, send_option_hex, rfdata)
-  end
-
-  # フレームIDを16進数文字列で取得するメソッド
-  def frame_id_hex
-  end
-
-  # フレームIDを16進数文字列で設定するメソッド
-  def frame_id_hex(hex)
-  end
-
-  # 64bit 宛先アドレスを16進数文字列で取得するメソッド
-  def addr64_hex
-  end
-
-  # 64bit 宛先アドレスを16進数文字列で設定するメソッド
-  def addr64_hex=(hex)
-  end
-
-  # 16bit 宛先アドレスを16進数文字列で取得するメソッド
-  def addr16_hex
-  end
-
-  # 16bit 宛先アドレスを16進数文字列で設定するメソッド
-  def addr16_hex=(hex)
-  end
-
-  # ブロードキャスト半径を16進数文字列で取得するメソッド
-  def broadcast_range_radius_hex
-  end
-
-  # ブロードキャスト半径を16進数文字列で設定するメソッド
-  def broadcast_range_radius_hex=(hex)
-  end
-
-  # 送信オプションを16進数文字列で取得するメソッド
-  def send_option_hex
-  end
-
-  # 送信オプションを16進数文字列で設定するメソッド
-  def send_option_hex=(hex)
-  end
-
-  # RF-Dataを16進数文字列で取得するメソッド
-  def rfdata_hex
-  end
-
-  # RF-Dataを16進数文字列で設定するメソッド
-  def rfdata_hex=(hex)
-  end
-
-  # RF-Dataを無変換で取得するメソッド
-  def rfdata
-  end
-  
-  # RF-Dataを無変換で設定するメソッド
-  def rfdata=(bin)
-  end
-end
-
-#frame = XBeeModuleRawFrame.new
-#frame.data_hex="90 00 13 A2 00 40 4B 88 42 00 00 01 54 78 44 61 74 61 30 41"
-#puts frame.sum_hex
-#puts frame.frame_hex
-#
-#puts frame.command_id_hex
-#
-#frame.command_id_hex = "91"
-#puts frame.frame_hex
 
 # 受信データのフォーマット
 # a,b,zxxx.x,c
@@ -189,9 +28,9 @@ class ZigBeeReceiveFrame
     @xbeecmd       = "10"
     @xbeefrmid     = "00"
     # 以下LSI Xbeemodule
-    @xbeedstaddr   = "00 13 a2 00 40 b1 89 bc"
+    #@xbeedstaddr   = "00 13 a2 00 40 b1 89 bc"
     # 以下社内Xbeemodule
-    #@xbeedstaddr   = "00 13 a2 00 40 66 10 7e"
+    @xbeedstaddr   = "00 13 a2 00 40 66 10 7e"
     @xbeelocaldst  = "ff fe"
     @xbeeoption    = "00 00"
 
@@ -249,18 +88,20 @@ class ZigBeeReceiveFrame
   end
 
   def recv_data()
+#    @sp.flush_input
     @count = 0
     length = 100
     loop do
       # 文字を1byte読み込み
       @raw_data[@count] = @sp.read(1)
-#p @raw_data[@count]
+p @raw_data[@count]
       if @count == 0 then
         if @raw_data[@count] != '~' then
            next
         end
       end
 
+      # データ長チェック
       if @count == 2 then
         length_str = @raw_data[1,2]
         tmp2 = length_str.join
@@ -268,25 +109,24 @@ class ZigBeeReceiveFrame
         puts "length = #{tmp1}"
         length = tmp1[0]
         length = length + 2
-        p "length = #{length}"
-        # データ長は26固定 length の 2を追加
-        if length != 28 then
+#        p "length = #{length}"
+        if length != 26 then
           puts "data length error"
           @count = 0
           next
         end
       end
 
-      # 
-
+      # センサ情報が正常の場合、データを復帰する
       @count = @count+1
       if @count > 2 then
         if @count > length then
-          # addressチェックを入れたいが。。。
-          # 今回はパス
           chknum = @raw_data[14,1]
           if chknum != ["3"] then
+            @count = 0
             puts "sensor error st= #{chknum}"
+            @sp.flush_input
+            next
           end
           break
         end
@@ -299,20 +139,4 @@ class ZigBeeReceiveFrame
   end
 end
 
-#test = ZigBeeReceiveFrame.new
-#
-#loop do
-#  puts "start"
-#  test.recv_data
-#  recvdata = test.get_data
-#  fanstatus = test.get_fan_status
-#  temp = test.get_temp
-#  status = test.get_status
-#  puts "recvdata = #{recvdata}"
-#  puts "fanstatus = #{fanstatus}, temp=#{temp} , status=#{status}"
-#  puts temp.to_f
-#  puts "end"
-#end
-
- 
 

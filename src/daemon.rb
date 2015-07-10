@@ -3,10 +3,7 @@
 # @author FAE
 # 2015/10/29
 
-
-
 require_relative 'core'
-
 
 class DataProcessHandler
 	def initialize
@@ -19,7 +16,7 @@ class DataProcessHandler
 		@cloud_port   = 80
 
 		#create LocalDb and cloudDb class object
-		#@localdb = LocalDb.new(@localdb_host,@localdb_port)
+		@localdb = LocalDb.new(@localdb_host,@localdb_port)
 		@clouddb = CloudDb.new(@cloud_host,@cloud_port)
 
 		begin

@@ -20,7 +20,6 @@ require 'yaml'
 # A:FAN制御  0:停止 / 1:回転
 
 class ZigBeeReceiveFrame
-  #@@xbee = YAML.load_file 'config/xbee.yml'
   @@xbee = YAML.load_file './xbee.yml'
 
   def initialize
@@ -38,7 +37,7 @@ class ZigBeeReceiveFrame
     @raw_data = Array.new
     @count = 0
     @outdata = Array.new
-		@f = File.open('format.txt', "r")
+	#	@f = File.open('format.txt', "r")
   end
 
   # センサの文字列データのみを取得する
@@ -63,36 +62,36 @@ class ZigBeeReceiveFrame
 
   # fan状態を取得する
   def get_fan_status
-    return @outdata.join[2,1]
-    #return @outdata[24,1]	#DEBUG
+    #return @outdata.join[2,1]
+    return @outdata[12,1]	#DEBUG
   end
 
   # 温度を取得する
   def get_temp
-    return @outdata.join[4,6]
-    #return @outdata[26,5] #DEBUG
+    #return @outdata.join[4,6]
+    return @outdata[14,5] #DEBUG
   end
 
   # 異常状態を取得する
   def get_fail_status
-    return @outdata.join[11,1]
-    #return @outdata[32,1] #DEBUG
+    #return @outdata.join[11,1]
+    return @outdata[21,1] #DEBUG
   end
 
   # 装置状態を取得する
   def get_device_status
-    return @outdata.join[0,1]
-    #return @outdata[22,1]	#DEBUG
+    #return @outdata.join[0,1]
+    return @outdata[14,6]	#DEBUG
   end
 
 	# Get mac addr of the device
 	def get_addr
-		return @outdata[0,12]
+		addr = @outdata[5,6]
+		return addr[0,6].unpack("H*")
 	end
 
   def recv_data_dummy()
 		@outdata = @f.gets.chomp
-		#p @outdata
 =begin
     sleep 1
     if File.exist? "format.txt"
@@ -152,6 +151,7 @@ class ZigBeeReceiveFrame
 
     end
     @outdata = @raw_data[14,12]
+    #@outdata = @raw_data[5,22]
     #return textstr
     return 1
   end

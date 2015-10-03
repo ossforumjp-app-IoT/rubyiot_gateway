@@ -1,0 +1,18 @@
+*.gem
+/test/tmp/
+/tmp/
+/vendor/
+*.db
+*.log
+
+## Documentation cache and generated files:
+/.yardoc/
+/_yardoc/
+/doc/
+/rdoc/
+
+# unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
+.rvmrc
+
+# for Mac
+.DS_Store

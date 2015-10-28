@@ -1,6 +1,9 @@
 #!/usr/bin/ruby
 
 require 'serialport'
+require_relative './serialdummy'
+
+require 'yaml'
 
 # 受信データのフォーマット
 # a,b,zxxx.x,c
@@ -11,31 +14,27 @@ require 'serialport'
 # b:FAN状態  0:停止 / 1:回転
 # zxxx.x : 温度 z:+/-
 # c:温度異常 0:正常 1:高温異常 2:低温異常
-# 
+#
 # 送信データのフォーマット
-# 0,A,ZXXX.0,YKKK.0 
+# 0,A,ZXXX.0,YKKK.0
 # A:FAN制御  0:停止 / 1:回転
 
-class ZigBeeReceiveFrame 
-  def initialize()
-    @sp = SerialPort.new('/dev/ttyUSB0', 115200, 8, 1, 0)
+class ZigBeeReceiveFrame
+  @@xbee = YAML.load_file 'config/xbee.yml'
+
+  def initialize
+    spconf = @@xbee["serialport"]
+    if spconf["device"] == "dummy"
+      @sp = SerialDummyFile.new
+    else
+      @sp = SerialPort.new(spconf["device"], spconf["boudrate"], spconf["databits"], spconf["stopbits"], spconf["parity"])
+    end
+
     @raw_data = Array.new
     @count = 0
     @outdata = Array.new
-
-    @xbeestcode    = "7E"
-    @xbeelen       = "00 1f"
-    @xbeecmd       = "10"
-    @xbeefrmid     = "00"
-    # 以下LSI Xbeemodule
-    #@xbeedstaddr   = "00 13 a2 00 40 b1 89 bc"
-    # 以下社内Xbeemodule
-    @xbeedstaddr   = "00 13 a2 00 40 66 10 7e"
-    @xbeelocaldst  = "ff fe"
-    @xbeeoption    = "00 00"
-
   end
-  
+
   # センサの文字列データのみを取得する
   def get_data
     return @outdata.join
@@ -43,13 +42,13 @@ class ZigBeeReceiveFrame
 
   def send_data(data)
      sdata_str = data.unpack("H*")
-     send_data_str = [@xbeecmd, @xbeefrmid, @xbeedstaddr ,@xbeelocaldst ,@xbeeoption, sdata_str].join(" ")
+     send_data_str = [@@xbee["cmd"], @@xbee["frmid"], @@xbee["dstaddr"] ,@@xbee["localdst"] ,@@xbee["option"], sdata_str].join(" ")
      send_data_ary = [send_data_str.tr(" ","")]
      send_data_bin = send_data_ary.pack("H*")
      sum = ~send_data_bin.sum(8) & 0xff
      sum_str = sprintf("%02x", sum)
 
-     all_data_str = [@xbeestcode, @xbeelen, send_data_str, sum_str].join(" ")
+     all_data_str = [@@xbeest["code"], @@xbee["len"], send_data_str, sum_str].join(" ")
      all_data_ary = [all_data_str.tr(" ","")]
      all_data_bin = all_data_ary.pack("H*")
 
@@ -138,5 +137,3 @@ p @raw_data[@count]
     return 1
   end
 end
-
-

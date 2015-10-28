@@ -11,19 +11,20 @@
 # su - pi -c "/home/pi/init.sh"
 #
 
-echo "unicorn start" >> daemon.log
+CURRENT_PATH=`pwd`
+LOG_FILE="$CURRENT_PATH/log/daemon.log"
+
+echo "unicorn start" >> $LOG_FILE
 #~/server/rubyiot_server/start.sh
 
 cd ~/server/rubyiot_server
 ./start.sh
 
-echo "unicorn start finish" >> daemon.log
+echo "unicorn start finish" >> $LOG_FILE
 
-cd ~/ossapp-src
-ruby daemon.rb >> /home/pi/daemon.log &
-#ruby daemon.rb 
+cd $CURRENT_PATH
+bundle exec ruby src/daemon.rb >> $LOG_FILE &
+#ruby daemon.rb
 
 #cd ossapp-src
 #ruby daemon.rb
-
-

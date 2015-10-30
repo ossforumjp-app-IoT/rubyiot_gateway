@@ -11,6 +11,11 @@ require 'uri'
 
 require_relative 'xbeemodule'
 
+#mizuta
+require 'httpclient'
+require 'digest/sha2'
+require 'pry'
+
 # データベースアクセス用のクラス
 class LocalDbData < ActiveRecord::Base
 end
@@ -78,7 +83,18 @@ class CloudDb
   #
   # クラウドにポート指定でアクセスするための準備を行う。
   def initialize(server, port)
-    @http = Net::HTTP.new(server, port)
+    #@http = Net::HTTP.new(server, port)
+
+=begin
+		#PROXY
+		proxy_host = 
+		proxy_user = 
+		proxy_passwd = 
+=end
+		#@http = HTTPClient.new(proxy_host)
+		@http = HTTPClient.new
+		#@http.set_proxy_auth(proxy_user, proxy_passwd)
+		@http.set_auth(server, 'aaa', Digest::SHA256.hexdigest('aaa'))
   end
 
   # クラウド上のＤＢアクセスクラスの初期化
@@ -97,15 +113,16 @@ class CloudDb
   def setDevice(hardware_uid, class_group_code, class_code, properties)
 # 社内評価用
 #    huid_hash = {'hardware_uid' => '0013a20040b189bc',
+     huid_hash = {'hardware_uid' => hardware_uid,
 # LSIさん用
-    huid_hash = {'hardware_uid' => '0013a2004066107e',
+#    huid_hash = {'hardware_uid' => '0013a2004066107e',
                  'class_group_code' => '0x00',
                  'class_code' => '0x11',
                  'properties' => { '0x00' => 'sensor',
                                    '0x01' => 'controller'}}
     post_data = huid_hash.to_json
     debug("POST Data : #{post_data}")
-    @http.post('/api/device', post_data)
+    @http.post('http://rubyiot.rcloud.jp/api/device', post_data)
   end
 
   # センサの監視値（上限値・下限値）を登録・更新するメソッド
@@ -120,7 +137,7 @@ class CloudDb
     query_hash = { '1' => monitor_range }
     post_data = query_hash.to_json
     debug("POST Data : #{post_data}")
-    @http.post('/api/monitor', post_data)
+    @http.post('http://rubyiot.rcloud.jp/api/monitor', post_data)
   end
 
   # センサの監視値（上限値・下限値）を取得するメソッド
@@ -131,7 +148,7 @@ class CloudDb
   def getMonitorRange(sensor_id)
     query_hash = { 'sensor_id' => sensor_id }
     debug("GET Query Data : #{query_hash.to_query}")
-    response = @http.get("/api/monitor?#{query_hash.to_query}")
+    response = @http.get("http://rubyiot.rcloud.jp/api/monitor?#{query_hash.to_query}")
     JSON.parse(response.body)
   end
 
@@ -144,7 +161,7 @@ class CloudDb
     query_hash = {sensor_id => sensing_data.to_s}
     post_data = query_hash.to_json
     debug("POST Data : #{post_data}")
-    @http.post('/api/sensor_data', post_data)
+    res=@http.post('http://rubyiot.rcloud.jp/api/sensor_data', post_data)
   end
 
   # リモート操作指示状態を取得するメソッド
@@ -152,7 +169,7 @@ class CloudDb
   def getOperation(gateway_id)
     query_hash = { 'gateway_id' => gateway_id }
     debug("GET Query Data : #{query_hash.to_query}")
-    response = @http.get("/api/operation?#{query_hash.to_query}")
+    response = @http.get("http://rubyiot.rcloud.jp/api/operation?#{query_hash.to_query}")
     JSON.parse(response.body)
   end
 
@@ -164,7 +181,7 @@ class CloudDb
     query_hash = {gateway_id => status.to_s}
     post_data = query_hash.to_json
     debug("POST Data : #{post_data}")
-    @http.post('/api/operation_status', post_data)
+    @http.post('http://rubyiot.rcloud.jp/api/operation_status', post_data)
   end
 
   # センサ監視値設定メソッド
@@ -176,7 +193,7 @@ class CloudDb
     query_hash = { sensor_id => monitor_range }
     post_data = query_hash.to_json
     debug("POST Data : #{post_data}")
-    @http.post('/api/monitor', post_data)
+    @http.post('http://rubyiot.rcloud.jp/api/monitor', post_data)
   end
 
   # センサalert設定メソッド
@@ -189,7 +206,7 @@ class CloudDb
     s_alert = { sensor_id => monitor_range }
     post_data = s_alert.to_json
     debug("POST Data : #{post_data}")
-    @http.post('/api/sensor_alert', post_data)
+    @http.post('http://rubyiot.rcloud.jp/api/sensor_alert', post_data)
   end
 
   # センサ情報取得メソッド
@@ -197,7 +214,7 @@ class CloudDb
   def getSensor(gateway_id)
     query_hash = { 'gateway_id' => gateway_id }
     debug("GET Query Data : #{query_hash.to_query}")
-    response = @http.get("/api/sensor?#{query_hash.to_query}")
+    response = @http.get("http://rubyiot.rcloud.jp/api/sensor?#{query_hash.to_query}")
     #response = @http.get("/api/sensor?gateway_id=1")
     JSON.parse(response.body)
   end
@@ -207,11 +224,13 @@ class CloudDb
   def getController(gateway_id)
     query_hash = { 'gateway_id' => gateway_id }
     debug("GET Query Data : #{query_hash.to_query}")
-    response = @http.get("/api/controller?#{query_hash.to_query}")
+    response = @http.get("http://rubyiot.rcloud.jp/api/controller?#{query_hash.to_query}")
     JSON.parse(response.body)
   end
 
   # デバイス情報設定メソッド
+	def postDevice(uid)
+=begin
   def postDevice
 #    huid_hash = {'hardware_uid' => '0013a2004066107e',
 #                 		'class_group_code' => '0x00',
@@ -239,9 +258,29 @@ class CloudDb
 				'property_code'=>'0x31',
 				   'type' => 'controller'}
 				   ]}
+=end
+		huid_hash = {
+			'hardware_uid' => uid,
+			'class_group_code' => '0x00',
+			'class_code' => '0x00',
+			'properties' => [
+				{
+					'class_group_code' => '0x00',
+					'class_code' => '0x00',
+					'property_code'=>'0x30',
+					'type' => 'sensor'
+				},
+				{
+					'class_group_code' => '0x00',
+					'class_code' => '0x00',
+					'property_code'=>'0x31',
+					'type' => 'controller'
+				}
+			]
+		} 
     post_data = huid_hash.to_json
     debug("POST Data : #{post_data}")
-    response = @http.post('/api/device', post_data)
+    response = @http.post('http://rubyiot.rcloud.jp/api/device', post_data)
     puts "--- 応答 ---"
     puts response.body
     #JSON.parse(response.body)
@@ -255,7 +294,7 @@ class CloudDb
     test_hash = { sensor_id => aaaa_hash }
     post_data = test_hash.to_json
     debug("POST Data : #{post_data}")
-    @http.post('/api/sensor', post_data)
+    @http.post('http://rubyiot.rcloud.jp/api/sensor', post_data)
   end
 
   # コントローラ情報設定メソッド
@@ -266,7 +305,7 @@ class CloudDb
     test_hash = { controller_id => aaaa_hash }
     post_data = test_hash.to_json
     debug("POST Data : #{post_data}")
-    @http.post('/api/controller', post_data)
+    @http.post('http://rubyiot.rcloud.jp/api/controller', post_data)
   end
 
   # センサ情報設定メソッド
@@ -276,18 +315,36 @@ class CloudDb
     test_hash = { sensor_id => val }
     post_data = test_hash.to_json
     debug("POST Data : #{post_data}")
-    @http.post('/api/sensor_data', post_data)
+    @http.post('http://rubyiot.rcloud.jp/api/sensor_data', post_data)
   end
 
   # センサ情報取得メソッド
   #   @param [Integer] センサID
   def getSensorData(sensor_id)
-    response = @http.get('/api/sensor_data?sensor_id=11&start=2015-01-23+00:00:00&span=5-minutely')
+    response = @http.get('http://rubyiot.rcloud.jp/api/sensor_data?sensor_id=11&start=2015-01-23+00:00:00&span=5-minutely')
     JSON.parse(response.body)
   end
 
   def debug(msg)
-    puts "  " + msg
+    #puts "  " + msg
+  end
+
+  #mizuta
+  def login
+    post_hash = { #'username' => @username,
+                  'username' => 'aaa',
+                  #'password_hash' => Digest::SHA256.hexdigest(@password) }
+                  'password_hash' => Digest::SHA256.hexdigest('aaa') }
+    post_data = post_hash.to_json
+    res = @http.post('http://rubyiot.rcloud.jp/api/login', post_data)
+
+    #20151028
+
+  end
+
+  #mizuta
+  def logout
+    res = @http.get('http://rubyiot.rcloud.jp/api/logout')
   end
 end
 
@@ -348,7 +405,7 @@ class Sensor
   end
 
   # 温度情報取得
-  def sense
+  def get_temp
     return @zigrecv.get_temp
   end
 
@@ -356,6 +413,11 @@ class Sensor
   def get_fail_status
     return @zigrecv.get_fail_status
   end
+
+	# get device mac
+	def get_addr
+		return @zigrecv.get_addr
+	end
 
 end
 

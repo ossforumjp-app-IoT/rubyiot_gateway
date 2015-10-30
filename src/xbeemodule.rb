@@ -20,19 +20,25 @@ require 'yaml'
 # A:FAN制御  0:停止 / 1:回転
 
 class ZigBeeReceiveFrame
-  @@xbee = YAML.load_file 'config/xbee.yml'
+  #@@xbee = YAML.load_file 'config/xbee.yml'
+  @@xbee = YAML.load_file './xbee.yml'
 
   def initialize
     spconf = @@xbee["serialport"]
-    if spconf["device"] == "dummy"
-      @sp = SerialDummyFile.new
-    else
-      @sp = SerialPort.new(spconf["device"], spconf["boudrate"], spconf["databits"], spconf["stopbits"], spconf["parity"])
-    end
+		begin	
+	    if spconf["device"] == "dummy"
+	      @sp = SerialDummyFile.new
+	    else
+	      @sp = SerialPort.new(spconf["device"], spconf["boudrate"], spconf["databits"], spconf["stopbits"], spconf["parity"])
+			end
+		rescue
+			puts "SerialPort open error"
+   	end
 
     @raw_data = Array.new
     @count = 0
     @outdata = Array.new
+		@f = File.open('format.txt', "r")
   end
 
   # センサの文字列データのみを取得する
@@ -58,24 +64,36 @@ class ZigBeeReceiveFrame
   # fan状態を取得する
   def get_fan_status
     return @outdata.join[2,1]
+    #return @outdata[24,1]	#DEBUG
   end
 
   # 温度を取得する
   def get_temp
     return @outdata.join[4,6]
+    #return @outdata[26,5] #DEBUG
   end
 
   # 異常状態を取得する
   def get_fail_status
     return @outdata.join[11,1]
+    #return @outdata[32,1] #DEBUG
   end
 
   # 装置状態を取得する
   def get_device_status
     return @outdata.join[0,1]
+    #return @outdata[22,1]	#DEBUG
   end
 
+	# Get mac addr of the device
+	def get_addr
+		return @outdata[0,12]
+	end
+
   def recv_data_dummy()
+		@outdata = @f.gets.chomp
+		#p @outdata
+=begin
     sleep 1
     if File.exist? "format.txt"
       stdata = File.read("format.txt")
@@ -84,6 +102,7 @@ class ZigBeeReceiveFrame
       stdata = "3,0,+16.8"
       @outdata = stdata.split("")
     end
+=end
   end
 
   def recv_data()
@@ -93,7 +112,7 @@ class ZigBeeReceiveFrame
     loop do
       # 文字を1byte読み込み
       @raw_data[@count] = @sp.read(1)
-p @raw_data[@count]
+#p @raw_data[@count]
       if @count == 0 then
         if @raw_data[@count] != '~' then
            next
@@ -105,7 +124,7 @@ p @raw_data[@count]
         length_str = @raw_data[1,2]
         tmp2 = length_str.join
         tmp1 = tmp2.unpack("n*")
-        puts "length = #{tmp1}"
+        #puts "length = #{tmp1}"
         length = tmp1[0]
         length = length + 2
 #        p "length = #{length}"

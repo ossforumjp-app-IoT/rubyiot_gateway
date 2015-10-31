@@ -1,14 +1,17 @@
-#!/usr/bin/ruby
+#!/usr/bin/ruby -Ku
 
-require_relative 'core'
-
-# RaspberyPi上で動作するデーモンオブジェクト
 # @author FAE
 # 2015/10/29
 
+
+
+require_relative 'core'
+
+
 class DataProcessHandler
-	def initialize(id)
-		@uid_list = Array.new
+	def initialize
+
+		@gateway_id = 1
 
 		@localdb_host = "localhost"
 		@localdb_port = 3131
@@ -16,11 +19,11 @@ class DataProcessHandler
 		@cloud_port   = 80
 
 		#create LocalDb and cloudDb class object
-		@localdb = LocalDb.new(@localdb_host,@localdb_port)
+		#@localdb = LocalDb.new(@localdb_host,@localdb_port)
 		@clouddb = CloudDb.new(@cloud_host,@cloud_port)
 
 		begin
-			response = @localdb.getSensor(id)
+			response = @localdb.getSensor(@gateway_id)
 			puts "ローカルからの応答 #{response}"
 		rescue
 			puts "ローカル準備中"
@@ -31,7 +34,7 @@ class DataProcessHandler
 		@clouddb.login
 
 		begin
-			response = @clouddb.getSensor(id)
+			response = @clouddb.getSensor(@gateway_id)
 			puts "クラウドからの応答 #{response}"
 		rescue
 			puts "クラウド準備中"
@@ -40,15 +43,10 @@ class DataProcessHandler
 		end
 	end
 
-	def store_data(id,time,temp)
-		if !(@uid_list.include?(id)) then
-			@clouddb.postDevice(id)
-			@uid_list.push(id)
-		end
-		
+	def store_data(id,time,data)
 		begin
-			res=@localdb.storeSensingData(id,time,temp)
-			ress=@clouddb.storeSensingData(id,time,temp)
+			resLocal = @localdb.storeSensingData(id,time,data)
+			resCloud = @clouddb.storeSensingData(id,time,data)
 		rescue
 			puts "db store data error"
 		end
@@ -88,7 +86,7 @@ class SensorMonitor
 
 	def recv_data
 		loop do
-			@sensor.recvdata()
+			@sensor.recvdata
 			dev_status = @sensor.get_device_status.to_i
 			if dev_status != 3 then
 				puts "dev status error : #{dev_status}"
@@ -118,12 +116,13 @@ class SensorMonitor
 	end
 
 	def send_data(max,min,value)
-		@clouddb.senddata(max,min,value)
+		@sensor.senddata(max,min,value)
 	end
 
 end #class SensorMonitor
 
 
+# RaspberyPi上で動作するデーモンオブジェクト
 class SensingControlDaemon
     # デーモンの初期化を行うメソッド
     def initialize
@@ -137,8 +136,8 @@ class SensingControlDaemon
     @sensor  = SensorMonitor.new         # センサオブジェクト生成
 		@send_queue = Queue.new
 		@recv_queue = Queue.new
-    @gateway_id = 1
-		@data_process_handler = DataProcessHandler.new(@gateway_id)
+		@uid_hash = Hash.new
+		@data_process_handler = DataProcessHandler.new
 
     @limit_min = -20
     @limit_max = 45
@@ -178,6 +177,16 @@ class SensingControlDaemon
     Process.daemon(true, true)
   end
 
+	def has_sensor_id(id)
+		if !(@uid_hash.has_key?(id)) then
+			res = @clouddb.postDevice
+			p res
+			@uid_hash.store(id,res[])
+		end
+		return @uid_hash[id]
+	end
+
+
   # デーモンのメイン処理を実行するメソッド
   def main
 
@@ -208,9 +217,10 @@ class SensingControlDaemon
 					# センシングデータ格納処理
 					timestamp = Time.now.strftime("%Y/%m/%d %H:%M:%S")
 					dph_store_t = Thread.new do
-						@data_process_handler.store_data(@gateway_id,timestamp,data["temperature"])
-						if (data["fail_status"] == 1 || data["fail_status"] == 2 ) then
-							@data_process_handler.notify_alert(@gateway_id,data["temperature"],@limit_min,@limit_max)
+						sensor_id = get_sensor_id(data["addr"])
+						@data_process_handler.store_data(sensor_id,timestamp,data["temperature"])
+						if (data["fail_status"] != 3 ) then
+							@data_process_handler.notify_alert(sensor_id,data["temperature"],@limit_min,@limit_max)
 						end
 					end
 				rescue
@@ -222,8 +232,7 @@ class SensingControlDaemon
 				# センシングパラメータ取得処理
 				begin
 					dph_get_t = Thread.new do
-						#@send_queue.push(@data_process_handler.process_data(data["addr"]))
-						@send_queue.push(@data_process_handler.process_data(1))
+						@send_queue.push(@data_process_handler.process_data(uid_hash[data["addr"]]))
 					end
 				rescue
 					puts "get motion range error"
@@ -237,11 +246,9 @@ class SensingControlDaemon
 			l.times do
 				data = @send_queue.pop
 				begin
-					@limit_min = data["min"]
-					@limit_max = data["max"]
-					value = data["value"]
+					value = data["value"] #DEBUG
 					value = 1 #DEBUG
-					@sensor.send_data(@limit_max.to_f,@limit_min.to_f,value)
+					@sensor.send_data(data["min"].to_f,data["max"].to_f,value)
 				rescue
 					puts "senddata skip"
 				end

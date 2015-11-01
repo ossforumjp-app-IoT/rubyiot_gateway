@@ -62,10 +62,13 @@ class DataProcessHandler
 	end 
 
 	def process_data(id)
+		p __method__
 		res = @clouddb.getMonitorRange(id)
 		limit_min = res["min"]
 		limit_max = res["max"]
 		res2 = @clouddb.getOperation(id)
+		puts res
+		puts res2
 		@clouddb.setOperationStatus(res2[0]["operation_id"],0)
 		data = {
 			"min" => limit_min,
@@ -206,6 +209,7 @@ class SensingControlDaemon
 		@recv_queue = @sensor.get_queue
 		
 		l = @recv_queue.length
+		puts l, "recv_queue length"
 		l.times do #TIMES1
 			data = @recv_queue.pop
 			# DB格納処理

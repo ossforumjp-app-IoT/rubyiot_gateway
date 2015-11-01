@@ -67,7 +67,9 @@ class DataProcessHandler
 		limit_min = res["min"]
 		limit_max = res["max"]
 		res2 = @clouddb.getOperation(id)
+		puts "RES"
 		puts res
+		puts "RES2"
 		puts res2
 		@clouddb.setOperationStatus(res2[0]["operation_id"],0)
 		data = {
@@ -75,6 +77,8 @@ class DataProcessHandler
 			"max" => limit_max,
 			"value" => res2.values[0]["operation_id"]	
 		}
+		puts "data"
+		puts data
 		return data
 	end
 
@@ -82,7 +86,7 @@ class DataProcessHandler
 		if !(@uid_hash.has_key?(id)) then
 			res = @clouddb.postDevice(@gateway_id)
 			#@uid_hash.store(id,res.values[0][1]["id"])
-			@uid_hash.store(id,1)
+			@uid_hash.store(id,1) # To be modified. Why sensor_id which gets from cloud is 1 ?
 		end
 		return @uid_hash[id]
 	end

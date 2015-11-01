@@ -63,31 +63,31 @@ class ZigBeeReceiveFrame
   # fan状態を取得する
   def get_fan_status
     #return @outdata.join[2,1]
-    return @outdata[12,1]	#DEBUG
+    return @outdata[2]	#DEBUG
   end
 
   # 温度を取得する
   def get_temp
     #return @outdata.join[4,6]
-    return @outdata[14,5] #DEBUG
+    return @outdata[3] #DEBUG
   end
 
   # 異常状態を取得する
   def get_fail_status
     #return @outdata.join[11,1]
-    return @outdata[21,1] #DEBUG
+    return @outdata[4] #DEBUG
   end
 
   # 装置状態を取得する
   def get_device_status
     #return @outdata.join[0,1]
-    return @outdata[14,6]	#DEBUG
+    return @outdata[1]	#DEBUG
   end
 
 	# Get mac addr of the device
 	def get_addr
-		addr = @outdata[5,6]
-		return addr[0,6].unpack("H*")
+		return @outdata[0]
+		#return addr[0,1].unpack("H*")
 	end
 
   def recv_data_dummy()
@@ -150,8 +150,9 @@ class ZigBeeReceiveFrame
       end
 
     end
-    @outdata = @raw_data[14,12]
-    #@outdata = @raw_data[5,22]
+
+    #@outdata = @raw_data[14,12]
+    @outdata = @raw_data.join[4,6].unpack("H*") + @raw_data[14,1] + @raw_data[16,1] + @raw_data.join[18,6].split(" ") + @raw_data[25,1]
     #return textstr
     return 1
   end

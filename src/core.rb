@@ -162,6 +162,7 @@ class CloudDb
     post_data = query_hash.to_json
     debug("POST Data : #{post_data}")
     res=@http.post('http://rubyiot.rcloud.jp/api/sensor_data', post_data)
+    return res
   end
 
   # リモート操作指示状態を取得するメソッド
@@ -283,7 +284,8 @@ class CloudDb
     response = @http.post('http://rubyiot.rcloud.jp/api/device', post_data)
     puts "--- 応答 ---"
     puts response.body
-    #JSON.parse(response.body)
+    return JSON.parse(response.body)
+
   end
 
   # センサ情報設定メソッド

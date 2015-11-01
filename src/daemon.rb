@@ -38,15 +38,18 @@ class DataProcessHandler
 			sleep 3
 			retry
 		end
+		@uid_hash = Hash.new
 	end
 
 	def store_data(id,time,data)
 		begin
-			resLocal = @localdb.storeSensingData(id,time,data)
+			#resLocal = @localdb.storeSensingData(id,time,data)
 			resCloud = @clouddb.storeSensingData(id,time,data)
 		rescue
 			puts "db store data error"
 		end
+		
+		p resCloud
 	end
 
 	def notify_alert(id,temp,min,max)
@@ -71,6 +74,16 @@ class DataProcessHandler
 		}
 		return data
 	end
+
+	def has_sensor_id(id)
+		if !(@uid_hash.has_key?(id)) then
+			res = @clouddb.postDevice(@gateway_id)
+			#@uid_hash.store(id,res.values[0][1]["id"])
+			@uid_hash.store(id,1)
+		end
+		return @uid_hash[id]
+	end
+
 end #class DataProcessHandler
 
 
@@ -91,13 +104,12 @@ class SensorMonitor
 			end
 			break
 		end
-
 		data = {
 			"dev_status" => @sensor.get_device_status.to_i,
 			"temperature" => @sensor.get_temp.to_f,
 			"fan_status" => @sensor.get_fan_status.to_i,
 			"fail_status" => @sensor.get_fail_status.to_i,
-			#"addr" => @sensor.get_addr.to_s,
+			"addr" => @sensor.get_addr.to_s,
 		}
 		p data	
 		@recv_queue.push(data)
@@ -133,7 +145,6 @@ class SensingControlDaemon
     @sensor  = SensorMonitor.new         # センサオブジェクト生成
 		@send_queue = Queue.new
 		@recv_queue = Queue.new
-		@uid_hash = Hash.new
 		@data_process_handler = DataProcessHandler.new
 
     @limit_min = -20
@@ -174,15 +185,6 @@ class SensingControlDaemon
     Process.daemon(true, true)
   end
 
-	def has_sensor_id(id)
-		if !(@uid_hash.has_key?(id)) then
-			res = @clouddb.postDevice
-			p res
-			@uid_hash.store(id,res[])
-		end
-		return @uid_hash[id]
-	end
-
 
   # デーモンのメイン処理を実行するメソッド
   def main
@@ -204,7 +206,6 @@ class SensingControlDaemon
 		@recv_queue = @sensor.get_queue
 		
 		l = @recv_queue.length
-			p "#{l} times@@@@@@@@@@@@@@@@@@@@@@@"
 		l.times do #TIMES1
 			data = @recv_queue.pop
 			# DB格納処理
@@ -214,7 +215,8 @@ class SensingControlDaemon
 					# センシングデータ格納処理
 					timestamp = Time.now.strftime("%Y/%m/%d %H:%M:%S")
 					dph_store_t = Thread.new do
-						sensor_id = get_sensor_id(data["addr"])
+						sensor_id = @data_process_handler.has_sensor_id(data["addr"])
+						p sensor_id
 						@data_process_handler.store_data(sensor_id,timestamp,data["temperature"])
 						if (data["fail_status"] != 3 ) then
 							@data_process_handler.notify_alert(sensor_id,data["temperature"],@limit_min,@limit_max)
@@ -229,7 +231,8 @@ class SensingControlDaemon
 				# センシングパラメータ取得処理
 				begin
 					dph_get_t = Thread.new do
-						@send_queue.push(@data_process_handler.process_data(uid_hash[data["addr"]]))
+						p "dph_get_t"
+						@send_queue.push(@data_process_handler.process_data(@data_process_handler.has_sensor_id(data["addr"])))
 					end
 				rescue
 					puts "get motion range error"

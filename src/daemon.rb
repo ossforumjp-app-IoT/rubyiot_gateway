@@ -81,6 +81,7 @@ puts "setOperation=#{res3.body}"
 			"min" => limit_min,
 			"max" => limit_max,
 			"value" => res2.values[0]["operation_id"]	
+			"addr" => id
 		}
 		puts "data"
 		puts data
@@ -256,13 +257,13 @@ class SensingControlDaemon
 		end #TIMES1
 
 		sensor_send_t = Thread.new do
-			l = @send_queue.length
-			l.times do
-				data = @send_queue.pop
+			len = @send_queue.length
+			len.times do
+				send_data = @send_queue.pop
 				begin
-					value = data["value"] #DEBUG
-					value = 1 #DEBUG
-					@sensor.send_data(data["min"].to_f,data["max"].to_f,value)
+					#value = data["value"] #DEBUG
+					#value = 1 #DEBUG
+					@sensor.senddata(send_data["min"].to_f,send_data["max"].to_f,send_data["value"],send_data["addr"])
 				rescue
 					puts "senddata skip"
 				end

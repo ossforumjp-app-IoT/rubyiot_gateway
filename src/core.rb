@@ -373,7 +373,7 @@ class Sensor
     #@zigrecv.recv_data_dummy
   end
 
-  def senddata(limit_max,limit_min,sensorctl)
+  def senddata(limit_max,limit_min,sensorctl,addr)
 
     min_expr = '+'
     max_expr = '+'
@@ -402,7 +402,7 @@ class Sensor
 
     puts "data = #{data}"
 
-    @zigrecv.send_data(data)
+    @zigrecv.send_data(data,addr)
   end
 
 

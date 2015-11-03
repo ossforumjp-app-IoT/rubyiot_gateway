@@ -45,9 +45,10 @@ class ZigBeeReceiveFrame
     return @outdata.join
   end
 
-  def send_data(data)
+  def send_data(data,addr)
      sdata_str = data.unpack("H*")
-     send_data_str = [@@xbee["cmd"], @@xbee["frmid"], @@xbee["dstaddr"] ,@@xbee["localdst"] ,@@xbee["option"], sdata_str].join(" ")
+     #send_data_str = [@@xbee["cmd"], @@xbee["frmid"], @@xbee["dstaddr"] ,@@xbee["localdst"] ,@@xbee["option"], sdata_str].join(" ")
+     send_data_str = [@@xbee["cmd"], @@xbee["frmid"], addr ,@@xbee["localdst"] ,@@xbee["option"], sdata_str].join(" ")
      send_data_ary = [send_data_str.tr(" ","")]
      send_data_bin = send_data_ary.pack("H*")
      sum = ~send_data_bin.sum(8) & 0xff

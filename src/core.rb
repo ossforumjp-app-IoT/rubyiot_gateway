@@ -133,8 +133,7 @@ class CloudDb
   # クラウドにアクセスして登録されている監視値（上限値・下限値）を更新します。
   def setMonitorRange(sensor_id, min, max)
     monitor_range = { 'min' => min.to_s, 'max' => max.to_s }
-    #query_hash = { 'sensor_id' => monitor_range }
-    query_hash = { '1' => monitor_range }
+    query_hash = { sensor_id => monitor_range }
     post_data = query_hash.to_json
     debug("POST Data : #{post_data}")
     @http.post('http://rubyiot.rcloud.jp/api/monitor', post_data)
@@ -149,6 +148,7 @@ class CloudDb
     query_hash = { 'sensor_id' => sensor_id }
     debug("GET Query Data : #{query_hash.to_query}")
     response = @http.get("http://rubyiot.rcloud.jp/api/monitor?#{query_hash.to_query}")
+    puts JSON.parse(response.body)
     JSON.parse(response.body)
   end
 
@@ -189,6 +189,7 @@ class CloudDb
   #   @param [Integer] センサID
   #   @param [Integer] 下限値
   #   @param [Integer] 上限値
+=begin #同じ機能のメソッドがある(setMonitorRange)
   def setSensorInfo(sensor_id, min, max)
     monitor_range = { 'min' => min.to_s, 'max' => max.to_s }
     query_hash = { sensor_id => monitor_range }
@@ -196,6 +197,7 @@ class CloudDb
     debug("POST Data : #{post_data}")
     @http.post('http://rubyiot.rcloud.jp/api/monitor', post_data)
   end
+#end
 
   # センサalert設定メソッド
   #   @param [Integer] センサID
@@ -230,7 +232,7 @@ class CloudDb
   end
 
   # デバイス情報設定メソッド
-	def postDevice(uid)
+	def postDevice(gateway_id,device_id)
 =begin
   def postDevice
 #    huid_hash = {'hardware_uid' => '0013a2004066107e',
@@ -261,7 +263,8 @@ class CloudDb
 				   ]}
 =end
 		huid_hash = {
-			'hardware_uid' => uid,
+			'gateway_uid' => gateway_id,
+			'device_uid' => device_id,
 			'class_group_code' => '0x00',
 			'class_code' => '0x00',
 			'properties' => [
@@ -331,7 +334,7 @@ class CloudDb
     #puts "  " + msg
   end
 
-  #mizuta
+  # ログインメソッド
   def login
     post_hash = { #'username' => @username,
                   'username' => 'aaa',
@@ -339,15 +342,22 @@ class CloudDb
                   'password_hash' => Digest::SHA256.hexdigest('aaa') }
     post_data = post_hash.to_json
     res = @http.post('http://rubyiot.rcloud.jp/api/login', post_data)
-
-    #20151028
-
   end
 
-  #mizuta
+  # ログアウトメソッド
   def logout
     res = @http.get('http://rubyiot.rcloud.jp/api/logout')
   end
+
+  # controllerへの操作指示を登録する
+  # @param [Integer] コントローラID
+  # @param [Integer] ON/OFF(0/1)
+  def setOperation(controller_id, operation)
+    post_hash = { controller_id => operation }
+    post_data = post_hash.to_json
+    res = @http.post('http://rubyiot.rcloud.jp/api/operation', post_data)
+  end
+
 end
 
 # センサクラス

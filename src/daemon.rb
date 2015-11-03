@@ -66,7 +66,7 @@ class DataProcessHandler
 		res = @clouddb.getMonitorRange(id)
 		limit_min = res["min"]
 		limit_max = res["max"]
-		res2 = @clouddb.getOperation(id)
+		res2 = @clouddb.getOperation(@gateway_id)
 		puts "RES"
 		puts res
 		puts "RES2"
@@ -84,9 +84,9 @@ class DataProcessHandler
 
 	def has_sensor_id(id)
 		if !(@uid_hash.has_key?(id)) then
-			res = @clouddb.postDevice(@gateway_id)
-			#@uid_hash.store(id,res.values[0][1]["id"])
-			@uid_hash.store(id,1) # To be modified. Why sensor_id which gets from cloud is 1 ?
+			res = @clouddb.postDevice(@gateway_id,id)
+			@uid_hash.store(id,res.values[0][0]["id"])
+			#res2 = @clouddb.setMonitorRange(@uid_hash[id], 10, 30) #debug
 		end
 		return @uid_hash[id]
 	end
@@ -224,7 +224,6 @@ class SensingControlDaemon
 					timestamp = Time.now.strftime("%Y/%m/%d %H:%M:%S")
 					dph_store_t = Thread.new do
 						sensor_id = @data_process_handler.has_sensor_id(data["addr"])
-						p sensor_id
 						@data_process_handler.store_data(sensor_id,timestamp,data["temperature"])
 						if (data["fail_status"] != 3 ) then
 							@data_process_handler.notify_alert(sensor_id,data["temperature"],@limit_min,@limit_max)

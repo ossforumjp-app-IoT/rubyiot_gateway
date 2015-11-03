@@ -39,6 +39,11 @@ class DataProcessHandler
 			retry
 		end
 		@uid_hash = Hash.new
+###################################debug
+res3 = @clouddb.setOperation(42, 0)
+puts "setOperation=#{res3.body}"
+###################################
+
 	end
 
 	def store_data(id,time,data)
@@ -86,7 +91,9 @@ class DataProcessHandler
 		if !(@uid_hash.has_key?(id)) then
 			res = @clouddb.postDevice(@gateway_id,id)
 			@uid_hash.store(id,res.values[0][0]["id"])
-			#res2 = @clouddb.setMonitorRange(@uid_hash[id], 10, 30) #debug
+			res2 = @clouddb.setMonitorRange(@uid_hash[id], 10, 30) #debug
+			puts res.values[0][0]["id"]
+			puts res.values[0][1]["id"]
 		end
 		return @uid_hash[id]
 	end

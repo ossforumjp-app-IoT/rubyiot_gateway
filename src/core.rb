@@ -11,7 +11,6 @@ require 'uri'
 
 require_relative 'xbeemodule'
 
-#mizuta
 require 'httpclient'
 require 'digest/sha2'
 require 'pry'
@@ -171,6 +170,7 @@ class CloudDb
     query_hash = { 'gateway_id' => gateway_id }
     debug("GET Query Data : #{query_hash.to_query}")
     response = @http.get("http://rubyiot.rcloud.jp/api/operation?#{query_hash.to_query}")
+    puts JSON.parse(response.body)
     JSON.parse(response.body)
   end
 
@@ -197,7 +197,7 @@ class CloudDb
     debug("POST Data : #{post_data}")
     @http.post('http://rubyiot.rcloud.jp/api/monitor', post_data)
   end
-#end
+=end
 
   # センサalert設定メソッド
   #   @param [Integer] センサID
@@ -232,7 +232,7 @@ class CloudDb
   end
 
   # デバイス情報設定メソッド
-	def postDevice(gateway_id,device_id)
+  def postDevice(gateway_id,device_id)
 =begin
   def postDevice
 #    huid_hash = {'hardware_uid' => '0013a2004066107e',

@@ -1,70 +1,189 @@
   GET Query Data : gateway_id=1
-ローカルからの応答 {"1"=>{"name"=>nil, "property_name"=>nil, "device_id"=>"", "value"=>"23.3", "unit"=>nil, "datetime"=>"2015-11-01 16:42:18", "alert"=>"0"}, "11"=>{"name"=>nil, "property_name"=>nil, "device_id"=>"", "value"=>"173", "unit"=>nil, "datetime"=>"2015-01-24 02:35:44", "alert"=>"0"}, "15"=>{"name"=>"センサー", "property_name"=>nil, "device_id"=>"", "value"=>"30.2", "unit"=>nil, "datetime"=>"2015-10-29 20:20:37", "alert"=>"0"}}
-  GET Query Data : gateway_id=1
-クラウドからの応答 {"1"=>{"name"=>"セミナールーム", "property_name"=>"Measured temperature value", "device_id"=>"1", "value"=>"22.2", "unit"=>"degree Celsius", "datetime"=>"2015-11-01 18:43:35", "alert"=>"0"}, "3"=>{"name"=>"玄関", "property_name"=>nil, "device_id"=>"2", "value"=>"", "unit"=>nil, "datetime"=>"", "alert"=>"0"}, "5"=>{"name"=>"ダイニング", "property_name"=>nil, "device_id"=>"2", "value"=>"", "unit"=>nil, "datetime"=>"", "alert"=>"0"}, "7"=>{"name"=>"キッチン", "property_name"=>nil, "device_id"=>"2", "value"=>"", "unit"=>nil, "datetime"=>"", "alert"=>"0"}, "19"=>{"name"=>"物置", "property_name"=>nil, "device_id"=>"", "value"=>"", "unit"=>nil, "datetime"=>"", "alert"=>"0"}, "24"=>{"name"=>"寝室", "property_name"=>nil, "device_id"=>"", "value"=>"", "unit"=>nil, "datetime"=>"", "alert"=>"0"}, "28"=>{"name"=>nil, "property_name"=>nil, "device_id"=>"", "value"=>"", "unit"=>nil, "datetime"=>"", "alert"=>"0"}}
+ローカルからの応答 {"1"=>{"name"=>nil, "property_name"=>nil, "device_id"=>"", "value"=>"", "unit"=>nil, "datetime"=>"", "alert"=>"0"}, "11"=>{"name"=>nil, "property_name"=>nil, "device_id"=>"", "value"=>"173", "unit"=>nil, "datetime"=>"2015-01-24 02:35:44", "alert"=>"0"}, "15"=>{"name"=>"センサー", "property_name"=>nil, "device_id"=>"", "value"=>"-41.2", "unit"=>nil, "datetime"=>"2015-04-06 23:26:05", "alert"=>"0"}}
+クラウドからの応答 {"3"=>{"name"=>"玄関", "property_name"=>nil, "device_id"=>"2", "value"=>"", "unit"=>nil, "datetime"=>"", "alert"=>"0"}, "5"=>{"name"=>"ダイニング", "property_name"=>nil, "device_id"=>"2", "value"=>"", "unit"=>nil, "datetime"=>"", "alert"=>"0"}, "7"=>{"name"=>"キッチン", "property_name"=>nil, "device_id"=>"2", "value"=>"", "unit"=>nil, "datetime"=>"", "alert"=>"0"}, "19"=>{"name"=>"物置", "property_name"=>nil, "device_id"=>"", "value"=>"", "unit"=>nil, "datetime"=>"", "alert"=>"0"}, "24"=>{"name"=>"寝室", "property_name"=>nil, "device_id"=>"", "value"=>"", "unit"=>nil, "datetime"=>"", "alert"=>"0"}, "28"=>{"name"=>nil, "property_name"=>nil, "device_id"=>"", "value"=>"", "unit"=>nil, "datetime"=>"", "alert"=>"0"}}
+setOperation={"operation_id":"414"}
 Start daemon.
 loop = 0
 0
 recv_queue length
-data length error
-{"dev_status"=>3, "temperature"=>22.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a200406610"}
-{"dev_status"=>3, "temperature"=>22.3, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a200406610"}
-{"dev_status"=>3, "temperature"=>22.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a200406610"}
-{"dev_status"=>3, "temperature"=>22.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a200406610"}
-{"dev_status"=>3, "temperature"=>22.3, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a200406610"}
-{"dev_status"=>3, "temperature"=>22.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a200406610"}
-sensor error st= ["\x10"]
-{"dev_status"=>3, "temperature"=>22.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a200406610"}
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
 loop = 1
-7
+3
 recv_queue length
-{"dev_status"=>3, "temperature"=>22.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a200406610"}
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
 loop = 2
 1
 recv_queue length
 "dph_get_t"
-  POST Data : {"hardware_uid":1,"class_group_code":"0x00","class_code":"0x00","properties":[{"class_group_code":"0x00","class_code":"0x00","property_code":"0x30","type":"sensor"},{"class_group_code":"0x00","class_code":"0x00","property_code":"0x31","type":"controller"}]}
-{"dev_status"=>3, "temperature"=>22.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a200406610"}
 --- 応答 ---
-{"9":[{"id":"32","class_group_code":"0x00","class_code":"0x00","property_code":"0x30"},{"id":"33","class_group_code":"0x00","class_code":"0x00","property_code":"0x31"}]}
+{"12":[{"id":"41","class_group_code":"0x00","class_code":"0x00","property_code":"0x30"},{"id":"42","class_group_code":"0x00","class_code":"0x00","property_code":"0x31"}]}
+41
+42
 :process_data
-  GET Query Data : sensor_id=32
-  GET Query Data : gateway_id=32
+{"min"=>"10", "max"=>"30"}
 RES
-{"min"=>"", "max"=>""}
+{"min"=>"10", "max"=>"30"}
 RES2
 {}
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
 loop = 3
 1
 recv_queue length
-"32"
-  storeSensingData call
-  POST Data : {"32":"22.2"}
-#<HTTP::Message:0xb85c4b30 @http_header=#<HTTP::Message::Headers:0xb85c4b18 @http_version="1.1", @body_size=0, @chunked=false, @request_method="POST", @request_uri=#<URI::HTTP:0xb85c6378 URL:http://rubyiot.rcloud.jp/api/sensor_data>, @request_query=nil, @request_absolute_uri=nil, @status_code=400, @reason_phrase="Bad Request", @body_type=nil, @body_charset=nil, @body_date=nil, @body_encoding=#<Encoding:ASCII-8BIT>, @is_request=false, @header_item=[["Server", "nginx/1.6.0"], ["Date", "Sun, 01 Nov 2015 10:13:34 GMT"], ["Content-Type", "text/plain"], ["Content-Length", "27"], ["Connection", "keep-alive"], ["Status", "400 Bad Request"], ["X-Content-Type-Options", "nosniff"]], @dumped=false>, @peer_cert=nil, @http_body=#<HTTP::Message::Body:0xb85c49e0 @body="Posted sensor_id not found.", @size=0, @positions=nil, @chunk_size=nil>, @previous=nil>
-  POST Data : {"32":{"value":22.2,"min":-20,"max":45}}
-{"dev_status"=>3, "temperature"=>22.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a200406610"}
+#<HTTP::Message:0xb9336e38 @http_header=#<HTTP::Message::Headers:0xb9336ce8 @http_version="1.1", @body_size=0, @chunked=false, @request_method="POST", @request_uri=#<URI::HTTP:0xb9349b58 URL:http://rubyiot.rcloud.jp/api/sensor_data>, @request_query=nil, @request_absolute_uri=nil, @status_code=201, @reason_phrase="Created", @body_type=nil, @body_charset=nil, @body_date=nil, @body_encoding=#<Encoding:UTF-8>, @is_request=false, @header_item=[["Server", "nginx/1.6.0"], ["Date", "Tue, 03 Nov 2015 11:16:20 GMT"], ["Content-Type", "text/plain;charset=utf-8"], ["Content-Length", "2"], ["Connection", "keep-alive"], ["Status", "201 Created"], ["X-Content-Type-Options", "nosniff"]], @dumped=false>, @peer_cert=nil, @http_body=#<HTTP::Message::Body:0xb9336bb0 @body="OK", @size=0, @positions=nil, @chunk_size=nil>, @previous=nil>
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
 loop = 4
 1
 recv_queue length
 "dph_get_t"
 :process_data
-  GET Query Data : sensor_id=32
-  GET Query Data : gateway_id=32
+{"min"=>"10", "max"=>"30"}
 RES
-{"min"=>"", "max"=>""}
+{"min"=>"10", "max"=>"30"}
 RES2
 {}
-{"dev_status"=>3, "temperature"=>22.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a200406610"}
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
 loop = 5
 1
 recv_queue length
-{"dev_status"=>3, "temperature"=>22.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a200406610"}
+{"dev_status"=>3, "temperature"=>23.3, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
 loop = 6
 1
 recv_queue length
 "dph_get_t"
 :process_data
-  GET Query Data : sensor_id=32
-"32"
-  storeSensingData call
-  POST Data : {"32":"22.2"}
+{"min"=>"10", "max"=>"30"}
+RES
+{"min"=>"10", "max"=>"30"}
+RES2
+{}
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+#<HTTP::Message:0xb8ff4df0 @http_header=#<HTTP::Message::Headers:0xb8ff4dc0 @http_version="1.1", @body_size=0, @chunked=false, @request_method="POST", @request_uri=#<URI::HTTP:0xb8ff62c0 URL:http://rubyiot.rcloud.jp/api/sensor_data>, @request_query=nil, @request_absolute_uri=nil, @status_code=201, @reason_phrase="Created", @body_type=nil, @body_charset=nil, @body_date=nil, @body_encoding=#<Encoding:UTF-8>, @is_request=false, @header_item=[["Server", "nginx/1.6.0"], ["Date", "Tue, 03 Nov 2015 11:16:24 GMT"], ["Content-Type", "text/plain;charset=utf-8"], ["Content-Length", "2"], ["Connection", "keep-alive"], ["Status", "201 Created"], ["X-Content-Type-Options", "nosniff"]], @dumped=false>, @peer_cert=nil, @http_body=#<HTTP::Message::Body:0xb8ff4d78 @body="OK", @size=0, @positions=nil, @chunk_size=nil>, @previous=nil>
+loop = 7
+1
+recv_queue length
+{"dev_status"=>3, "temperature"=>23.3, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+loop = 8
+1
+recv_queue length
+"dph_get_t"
+:process_data
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+{"min"=>"10", "max"=>"30"}
+RES
+{"min"=>"10", "max"=>"30"}
+RES2
+{}
+loop = 9
+1
+recv_queue length
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+#<HTTP::Message:0xb8d3d240 @http_header=#<HTTP::Message::Headers:0xb8d3d228 @http_version="1.1", @body_size=0, @chunked=false, @request_method="POST", @request_uri=#<URI::HTTP:0xb8d3eda0 URL:http://rubyiot.rcloud.jp/api/sensor_data>, @request_query=nil, @request_absolute_uri=nil, @status_code=201, @reason_phrase="Created", @body_type=nil, @body_charset=nil, @body_date=nil, @body_encoding=#<Encoding:UTF-8>, @is_request=false, @header_item=[["Server", "nginx/1.6.0"], ["Date", "Tue, 03 Nov 2015 11:16:26 GMT"], ["Content-Type", "text/plain;charset=utf-8"], ["Content-Length", "2"], ["Connection", "keep-alive"], ["Status", "201 Created"], ["X-Content-Type-Options", "nosniff"]], @dumped=false>, @peer_cert=nil, @http_body=#<HTTP::Message::Body:0xb8d3d0a8 @body="OK", @size=0, @positions=nil, @chunk_size=nil>, @previous=nil>
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+loop = 10
+2
+recv_queue length
+"dph_get_t"
+:process_data
+"dph_get_t"
+:process_data
+{"min"=>"10", "max"=>"30"}
+{"min"=>"10", "max"=>"30"}
+RES
+{"min"=>"10", "max"=>"30"}
+RES2
+{}
+RES
+{"min"=>"10", "max"=>"30"}
+RES2
+{}
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+loop = 11
+1
+recv_queue length
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+loop = 12
+1
+recv_queue length
+"dph_get_t"
+:process_data
+{"min"=>"10", "max"=>"30"}
+#<HTTP::Message:0xb9aec790 @http_header=#<HTTP::Message::Headers:0xb9aec778 @http_version="1.1", @body_size=0, @chunked=false, @request_method="POST", @request_uri=#<URI::HTTP:0xb9aed2b8 URL:http://rubyiot.rcloud.jp/api/sensor_data>, @request_query=nil, @request_absolute_uri=nil, @status_code=201, @reason_phrase="Created", @body_type=nil, @body_charset=nil, @body_date=nil, @body_encoding=#<Encoding:UTF-8>, @is_request=false, @header_item=[["Server", "nginx/1.6.0"], ["Date", "Tue, 03 Nov 2015 11:16:29 GMT"], ["Content-Type", "text/plain;charset=utf-8"], ["Content-Length", "2"], ["Connection", "keep-alive"], ["Status", "201 Created"], ["X-Content-Type-Options", "nosniff"]], @dumped=false>, @peer_cert=nil, @http_body=#<HTTP::Message::Body:0xb9aec730 @body="OK", @size=0, @positions=nil, @chunk_size=nil>, @previous=nil>
+RES
+{"min"=>"10", "max"=>"30"}
+RES2
+{}
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+loop = 13
+1
+recv_queue length
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+loop = 14
+1
+recv_queue length
+"dph_get_t"
+:process_data
+{"min"=>"10", "max"=>"30"}
+RES
+{"min"=>"10", "max"=>"30"}
+RES2
+{}
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+loop = 15
+1
+recv_queue length
+#<HTTP::Message:0xb9a4f290 @http_header=#<HTTP::Message::Headers:0xb9a4f5a8 @http_version="1.1", @body_size=0, @chunked=false, @request_method="POST", @request_uri=#<URI::HTTP:0xb9a4cf08 URL:http://rubyiot.rcloud.jp/api/sensor_data>, @request_query=nil, @request_absolute_uri=nil, @status_code=201, @reason_phrase="Created", @body_type=nil, @body_charset=nil, @body_date=nil, @body_encoding=#<Encoding:UTF-8>, @is_request=false, @header_item=[["Server", "nginx/1.6.0"], ["Date", "Tue, 03 Nov 2015 11:16:32 GMT"], ["Content-Type", "text/plain;charset=utf-8"], ["Content-Length", "2"], ["Connection", "keep-alive"], ["Status", "201 Created"], ["X-Content-Type-Options", "nosniff"]], @dumped=false>, @peer_cert=nil, @http_body=#<HTTP::Message::Body:0xb9a4fb18 @body="OK", @size=0, @positions=nil, @chunk_size=nil>, @previous=nil>
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+loop = 16
+1
+recv_queue length
+"dph_get_t"
+:process_data
+{"min"=>"10", "max"=>"30"}
+RES
+{"min"=>"10", "max"=>"30"}
+RES2
+{}
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+loop = 17
+1
+recv_queue length
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+loop = 18
+1
+recv_queue length
+"dph_get_t"
+:process_data
+{"min"=>"10", "max"=>"30"}
+#<HTTP::Message:0xb9a02040 @http_header=#<HTTP::Message::Headers:0xb9a01fb0 @http_version="1.1", @body_size=0, @chunked=false, @request_method="POST", @request_uri=#<URI::HTTP:0xb9a03450 URL:http://rubyiot.rcloud.jp/api/sensor_data>, @request_query=nil, @request_absolute_uri=nil, @status_code=201, @reason_phrase="Created", @body_type=nil, @body_charset=nil, @body_date=nil, @body_encoding=#<Encoding:UTF-8>, @is_request=false, @header_item=[["Server", "nginx/1.6.0"], ["Date", "Tue, 03 Nov 2015 11:16:35 GMT"], ["Content-Type", "text/plain;charset=utf-8"], ["Content-Length", "2"], ["Connection", "keep-alive"], ["Status", "201 Created"], ["X-Content-Type-Options", "nosniff"]], @dumped=false>, @peer_cert=nil, @http_body=#<HTTP::Message::Body:0xb9a01f20 @body="OK", @size=0, @positions=nil, @chunk_size=nil>, @previous=nil>
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+RES
+{"min"=>"10", "max"=>"30"}
+RES2
+{}
+loop = 19
+1
+recv_queue length
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+loop = 20
+1
+recv_queue length
+"dph_get_t"
+:process_data
+{"dev_status"=>3, "temperature"=>23.2, "fan_status"=>0, "fail_status"=>0, "addr"=>"00a20040b189"}
+{"min"=>"10", "max"=>"30"}
+RES
+{"min"=>"10", "max"=>"30"}
+RES2
+{}
+loop = 21
+1
+recv_queue length
+#<HTTP::Message:0xb98c4b98 @http_header=#<HTTP::Message::Headers:0xb98c4b08 @http_version="1.1", @body_size=0, @chunked=false, @request_method="POST", @request_uri=#<URI::HTTP:0xb98c5660 URL:http://rubyiot.rcloud.jp/api/sensor_data>, @request_query=nil, @request_absolute_uri=nil, @status_code=201, @reason_phrase="Created", @body_type=nil, @body_charset=nil, @body_date=nil, @body_encoding=#<Encoding:UTF-8>, @is_request=false, @header_item=[["Server", "nginx/1.6.0"], ["Date", "Tue, 03 Nov 2015 11:16:38 GMT"], ["Content-Type", "text/plain;charset=utf-8"], ["Content-Length", "2"], ["Connection", "keep-alive"], ["Status", "201 Created"], ["X-Content-Type-Options", "nosniff"]], @dumped=false>, @peer_cert=nil, @http_body=#<HTTP::Message::Body:0xb98c4a48 @body="OK", @size=0, @positions=nil, @chunk_size=nil>, @previous=nil>
+loop = 22
+0
+recv_queue length
+loop = 23
+0
+recv_queue length

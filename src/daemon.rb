@@ -41,8 +41,8 @@ class DataProcessHandler
 		end
 		@uid_hash = Hash.new
 ###################################debug
-#res3 = @clouddb.setOperation(42, 0)
-#puts "setOperation=#{res3.body}"
+res3 = @clouddb.setOperation(42, 0)
+puts "setOperation=#{res3.body}"
 ###################################
 
 	end
@@ -79,12 +79,12 @@ class DataProcessHandler
 		puts res
 		puts "RES2"
 		puts res2
-		@clouddb.setOperationStatus(res2[0]["operation_id"],0)
+		@clouddb.setOperationStatus(res2.values[0]["operation_id"],0)
 		data = {
 			"min" => limit_min,
 			"max" => limit_max,
-			"value" => res2.values[0]["operation_id"],	
-			"addr" => id
+			"value" => res2.values[0]["value"],
+			"addr" => @uid_hash.key(id)
 		}
 		puts "data"
 		puts data
@@ -96,7 +96,7 @@ class DataProcessHandler
 		if !(@uid_hash.has_key?(id)) then
 			res = @clouddb.postDevice(@gateway_id,id)
 			@uid_hash.store(id,res.values[0][0]["id"])
-			res2 = @clouddb.setMonitorRange(@uid_hash[id], 10, 30) #debug
+			###########################res2 = @clouddb.setMonitorRange(@uid_hash[id], 10, 30) #debug
 			puts res.values[0][0]["id"]
 			puts res.values[0][1]["id"]
 		end
@@ -144,8 +144,8 @@ class SensorMonitor
 		return q
 	end
 
-	def send_data(max,min,value)
-		@sensor.senddata(max,min,value)
+	def send_data(max,min,value,addr)
+		@sensor.senddata(max,min,value,addr)
 	end
 
 end #class SensorMonitor
@@ -228,7 +228,7 @@ class SensingControlDaemon
 		l = @recv_queue.length
 		puts l, "recv_queue length"
 		l.times do #TIMES1
-			#data = @recv_queue.pop
+			data = @recv_queue.pop
 			# DB格納処理
 			if Time.now > @settime then
 				begin 
@@ -236,11 +236,11 @@ class SensingControlDaemon
 					# センシングデータ格納処理
 					timestamp = Time.now.strftime("%Y/%m/%d %H:%M:%S")
 					dph_store_t = Thread.new do
-						data = @recv_queue.pop
+						#data = @recv_queue.pop
 						sensor_id = @data_process_handler.has_sensor_id(data["addr"])
 						@data_process_handler.store_data(sensor_id,timestamp,data["temperature"])
 						p "#{data["fail_status"]} ###"
-						if (data["fail_status"] != 3 ) then
+						if (data["fail_status"] != 0 ) then
 							@data_process_handler.notify_alert(sensor_id,data["temperature"],@limit_min,@limit_max)
 						end
 					end
@@ -266,11 +266,13 @@ class SensingControlDaemon
 		sensor_send_t = Thread.new do
 			len = @send_queue.length
 			len.times do
+				p "SEND DATA ##########################"
 				send_data = @send_queue.pop
 				begin
 					#value = data["value"] #DEBUG
 					#value = 1 #DEBUG
-					@sensor.senddata(send_data["min"].to_f,send_data["max"].to_f,send_data["value"],send_data["addr"])
+					p "#{send_data} SEND DATA OKURYAAAAAAAAAAAA ##########################"
+					@sensor.send_data(send_data["min"].to_f,send_data["max"].to_f,send_data["value"],send_data["addr"])
 				rescue
 					puts "senddata skip"
 				end

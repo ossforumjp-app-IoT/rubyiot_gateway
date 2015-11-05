@@ -46,6 +46,7 @@ class ZigBeeReceiveFrame
   end
 
   def send_data(data,addr)
+	puts "#{addr} OKUTEEEEEEEEEEEEEEE #####################"
      sdata_str = data.unpack("H*")
      #send_data_str = [@@xbee["cmd"], @@xbee["frmid"], @@xbee["dstaddr"] ,@@xbee["localdst"] ,@@xbee["option"], sdata_str].join(" ")
      send_data_str = [@@xbee["cmd"], @@xbee["frmid"], addr ,@@xbee["localdst"] ,@@xbee["option"], sdata_str].join(" ")
@@ -54,10 +55,12 @@ class ZigBeeReceiveFrame
      sum = ~send_data_bin.sum(8) & 0xff
      sum_str = sprintf("%02x", sum)
 
-     all_data_str = [@@xbeest["code"], @@xbee["len"], send_data_str, sum_str].join(" ")
+     all_data_str = [@@xbee["stcode"], @@xbee["len"], send_data_str, sum_str].join(" ")
+puts "#{all_data_str}"
      all_data_ary = [all_data_str.tr(" ","")]
+puts "#{all_data_ary}"
      all_data_bin = all_data_ary.pack("H*")
-
+	puts "#{all_data_bin} SAIGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"
      @sp.write(all_data_bin)
   end
 
@@ -106,13 +109,39 @@ class ZigBeeReceiveFrame
   end
 
   def recv_data()
-#    @sp.flush_input
+    @sp.flush_input
     @count = 0
     length = 100
     loop do
       # 文字を1byte読み込み
       @raw_data[@count] = @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
+p @sp.read(1)
 #p @raw_data[@count]
+#p @count
       if @count == 0 then
         if @raw_data[@count] != '~' then
            next
@@ -152,7 +181,9 @@ class ZigBeeReceiveFrame
     end
 
     #@outdata = @raw_data[14,12]
-    @outdata = @raw_data.join[4,6].unpack("H*") + @raw_data[14,1] + @raw_data[16,1] + @raw_data.join[18,6].split(" ") + @raw_data[25,1]
+puts "#@raw_data}########################################RAWDATA"
+    @outdata = @raw_data.join[4,8].unpack("H*") + @raw_data[14,1] + @raw_data[16,1] + @raw_data.join[18,6].split(" ") + @raw_data[25,1]
+puts "#{@outdata}########################################OUTDATA"
     #return textstr
     return 1
   end

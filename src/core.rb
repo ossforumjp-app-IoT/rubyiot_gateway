@@ -163,21 +163,21 @@ class CloudDb
     query_hash = {sensor_id => sensing_data.to_s}
     post_data = query_hash.to_json
     debug("POST Data : #{post_data}")
-    res=@http.post('http://rubyiot.rcloud.jp/api/sensor_data', post_data)
-#		puts res
+    res = @http.post('http://rubyiot.rcloud.jp/api/sensor_data', post_data)
 #    puts JSON.parse(res.body)
 #    return res
-    return JSON.parse(res.body)
+    #return JSON.parse(res.body)
   end
 
   # リモート操作指示状態を取得するメソッド
   #   @param [Integer] ゲートウェイID
-  def getOperation(gateway_id)
-    query_hash = { 'gateway_id' => gateway_id }
+  #def getOperation(gateway_id)
+  def getOperation(hardware_uid)
+    #query_hash = { 'gateway_id' => gateway_id }
+    query_hash = { 'hardware_uid' => hardware_uid }
     debug("GET Query Data : #{query_hash.to_query}")
     res = @http.get("http://rubyiot.rcloud.jp/api/operation?#{query_hash.to_query}")
     JSON.parse(res.body)
-#    JSON.parse(response.body)
   end
 
   # 操作状態設定メソッド
@@ -190,7 +190,7 @@ class CloudDb
     debug("POST Data : #{post_data}")
     res = @http.post('http://rubyiot.rcloud.jp/api/operation_status', post_data)
     puts res
-    return JSON.parse(res.body)
+    #return JSON.parse(res.body)
   end
 
   # センサ監視値設定メソッド
@@ -413,7 +413,7 @@ class Sensor
 
     data = sprintf("%d,%d,%c%03d.%s,%c%03d.%s", 0, sensorctl, max_expr, limit_max, tmp_max_x[1], min_expr, limit_min, tmp_min_x[1])
 
-    puts "data = #{data}"
+    puts "data = #{data} #{addr}"
 
     @zigrecv.send_data(data,addr)
   end

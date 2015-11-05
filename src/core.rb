@@ -136,7 +136,7 @@ class CloudDb
     post_data = query_hash.to_json
     debug("POST Data : #{post_data}")
     res = @http.post('http://rubyiot.rcloud.jp/api/monitor', post_data)
-		puts res
+#		puts res
     puts JSON.parse(res.body)
   end
 
@@ -149,8 +149,8 @@ class CloudDb
     query_hash = { 'sensor_id' => sensor_id }
     debug("GET Query Data : #{query_hash.to_query}")
     res = @http.get("http://rubyiot.rcloud.jp/api/monitor?#{query_hash.to_query}")
-		puts res
-    puts JSON.parse(res.body)
+#		puts res
+#    puts JSON.parse(res.body)
     JSON.parse(res.body)
   end
 
@@ -164,9 +164,10 @@ class CloudDb
     post_data = query_hash.to_json
     debug("POST Data : #{post_data}")
     res=@http.post('http://rubyiot.rcloud.jp/api/sensor_data', post_data)
-		puts res
-    puts JSON.parse(res.body)
-    return res
+#		puts res
+#    puts JSON.parse(res.body)
+#    return res
+    return JSON.parse(res.body)
   end
 
   # リモート操作指示状態を取得するメソッド
@@ -175,9 +176,8 @@ class CloudDb
     query_hash = { 'gateway_id' => gateway_id }
     debug("GET Query Data : #{query_hash.to_query}")
     res = @http.get("http://rubyiot.rcloud.jp/api/operation?#{query_hash.to_query}")
-		puts res
-    puts JSON.parse(res.body)
-    JSON.parse(response.body)
+    JSON.parse(res.body)
+#    JSON.parse(response.body)
   end
 
   # 操作状態設定メソッド
@@ -189,8 +189,8 @@ class CloudDb
     post_data = query_hash.to_json
     debug("POST Data : #{post_data}")
     res = @http.post('http://rubyiot.rcloud.jp/api/operation_status', post_data)
-		puts res
-    puts JSON.parse(res.body)
+    puts res
+    return JSON.parse(res.body)
   end
 
   # センサ監視値設定メソッド
@@ -218,7 +218,7 @@ class CloudDb
     post_data = s_alert.to_json
     debug("POST Data : #{post_data}")
     res = @http.post('http://rubyiot.rcloud.jp/api/sensor_alert', post_data)
-		puts res
+#		puts res
     puts JSON.parse(res.body)
   end
 
@@ -227,9 +227,9 @@ class CloudDb
   def getSensor(gateway_id)
     query_hash = { 'gateway_id' => gateway_id }
     debug("GET Query Data : #{query_hash.to_query}")
-    res = @http.get("http://rubyiot.rcloud.jp/api/sensor?#{query_hash.to_query}")
-		puts res
-    puts JSON.parse(res.body)
+    response = @http.get("http://rubyiot.rcloud.jp/api/sensor?#{query_hash.to_query}")
+#puts res
+#    puts JSON.parse(res.body)
     JSON.parse(response.body)
   end
 
@@ -297,9 +297,10 @@ class CloudDb
     debug("POST Data : #{post_data}")
     res = @http.post('http://rubyiot.rcloud.jp/api/device', post_data)
     puts "--- 応答 ---"
-		puts res
+#		puts res
     puts JSON.parse(res.body)
-    return JSON.parse(response.body)
+    return JSON.parse(res.body)
+    #return JSON.parse(response.body)
 
   end
 

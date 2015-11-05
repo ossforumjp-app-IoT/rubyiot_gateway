@@ -9,6 +9,7 @@ class DataProcessHandler
 	def initialize
 
 		@gateway_id = 1
+#		@gateway_id = 2
 
 		@localdb_host = "localhost"
 		@localdb_port = 3131
@@ -40,13 +41,14 @@ class DataProcessHandler
 		end
 		@uid_hash = Hash.new
 ###################################debug
-res3 = @clouddb.setOperation(42, 0)
-puts "setOperation=#{res3.body}"
+#res3 = @clouddb.setOperation(42, 0)
+#puts "setOperation=#{res3.body}"
 ###################################
 
 	end
 
 	def store_data(id,time,data)
+		p __method__
 		begin
 			#resLocal = @localdb.storeSensingData(id,time,data)
 			resCloud = @clouddb.storeSensingData(id,time,data)
@@ -58,6 +60,7 @@ puts "setOperation=#{res3.body}"
 	end
 
 	def notify_alert(id,temp,min,max)
+		p __method__
 		begin
 			res = @clouddb.setSensorAlert(id,temp,min,max)
 		rescue
@@ -80,7 +83,7 @@ puts "setOperation=#{res3.body}"
 		data = {
 			"min" => limit_min,
 			"max" => limit_max,
-			"value" => res2.values[0]["operation_id"]	
+			"value" => res2.values[0]["operation_id"],	
 			"addr" => id
 		}
 		puts "data"
@@ -89,6 +92,7 @@ puts "setOperation=#{res3.body}"
 	end
 
 	def has_sensor_id(id)
+		p __method__
 		if !(@uid_hash.has_key?(id)) then
 			res = @clouddb.postDevice(@gateway_id,id)
 			@uid_hash.store(id,res.values[0][0]["id"])
@@ -112,6 +116,7 @@ class SensorMonitor
 	def recv_data
 		loop do
 			@sensor.recvdata
+			p @sensor.get_temp.to_f
 			dev_status = @sensor.get_device_status.to_i
 			if dev_status != 3 then
 				puts "dev status error : #{dev_status}"
@@ -210,7 +215,7 @@ class SensingControlDaemon
 	sensor_t = Thread.new do
 		while(1) do
 			@sensor.recv_data
-			sleep 0.1 #DEBUG
+			#sleep 0.1 #DEBUG
 		end
 	end
 
@@ -223,7 +228,7 @@ class SensingControlDaemon
 		l = @recv_queue.length
 		puts l, "recv_queue length"
 		l.times do #TIMES1
-			data = @recv_queue.pop
+			#data = @recv_queue.pop
 			# DB格納処理
 			if Time.now > @settime then
 				begin 
@@ -231,8 +236,10 @@ class SensingControlDaemon
 					# センシングデータ格納処理
 					timestamp = Time.now.strftime("%Y/%m/%d %H:%M:%S")
 					dph_store_t = Thread.new do
+						data = @recv_queue.pop
 						sensor_id = @data_process_handler.has_sensor_id(data["addr"])
 						@data_process_handler.store_data(sensor_id,timestamp,data["temperature"])
+						p "#{data["fail_status"]} ###"
 						if (data["fail_status"] != 3 ) then
 							@data_process_handler.notify_alert(sensor_id,data["temperature"],@limit_min,@limit_max)
 						end

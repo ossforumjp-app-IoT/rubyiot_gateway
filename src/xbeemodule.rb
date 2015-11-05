@@ -134,7 +134,6 @@ class ZigBeeReceiveFrame
           next
         end
       end
-
       # センサ情報が正常の場合、データを復帰する
       @count = @count+1
       if @count > 2 then

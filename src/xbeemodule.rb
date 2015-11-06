@@ -115,31 +115,6 @@ puts "#{all_data_ary}"
     loop do
       # 文字を1byte読み込み
       @raw_data[@count] = @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
-p @sp.read(1)
 #p @raw_data[@count]
 #p @count
       if @count == 0 then
@@ -156,7 +131,7 @@ p @sp.read(1)
         #puts "length = #{tmp1}"
         length = tmp1[0]
         length = length + 2
-#        p "length = #{length}"
+        p "length = #{length}"
         if length != 26 then
           puts "data length error"
           @count = 0
@@ -181,8 +156,14 @@ p @sp.read(1)
     end
 
     #@outdata = @raw_data[14,12]
-puts "#@raw_data}########################################RAWDATA"
-    @outdata = @raw_data.join[4,8].unpack("H*") + @raw_data[14,1] + @raw_data[16,1] + @raw_data.join[18,6].split(" ") + @raw_data[25,1]
+    @outdata = []
+puts "#{@raw_data}########################################RAWDATA"
+    tmpdata = nil
+    tmpdata = @raw_data.join[4,1].unpack("H*").pop + "13" + @raw_data.join[5,6].unpack("H*").pop
+puts tmpdata
+    #@outdata = @raw_data.join[4,7].unpack("H*") + @raw_data[14,1] + @raw_data[16,1] + @raw_data.join[18,6].split(" ") + @raw_data[25,1]
+    @outdata << tmpdata
+    @outdata = @outdata + @raw_data[14,1] + @raw_data[16,1] + @raw_data.join[18,6].split(" ") + @raw_data[25,1]
 puts "#{@outdata}########################################OUTDATA"
     #return textstr
     return 1

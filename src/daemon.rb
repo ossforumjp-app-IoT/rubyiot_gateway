@@ -41,7 +41,7 @@ class DataProcessHandler
 		end
 		@uid_hash = Hash.new
 ###################################debug
-res3 = @clouddb.setOperation(42, 0)
+res3 = @clouddb.setOperation(49, 0)
 puts "setOperation=#{res3.body}"
 ###################################
 
@@ -97,6 +97,7 @@ puts "setOperation=#{res3.body}"
 			res = @clouddb.postDevice(@gateway_id,id)
 			@uid_hash.store(id,res.values[0][0]["id"])
 			###########################res2 = @clouddb.setMonitorRange(@uid_hash[id], 10, 30) #debug
+			res2 = @clouddb.setMonitorRange(@uid_hash[id], 10, 30) #debug
 			puts res.values[0][0]["id"]
 			puts res.values[0][1]["id"]
 		end

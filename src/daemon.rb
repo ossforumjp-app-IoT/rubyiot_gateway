@@ -41,8 +41,8 @@ class DataProcessHandler
 		end
 		@uid_hash = Hash.new
 ###################################debug
-res3 = @clouddb.setOperation(49, 0)
-puts "setOperation=#{res3.body}"
+#res3 = @clouddb.setOperation(49, 0)
+#puts "setOperation=#{res3.body}"
 ###################################
 
 	end
@@ -77,8 +77,11 @@ puts "setOperation=#{res3.body}"
 		res2 = @clouddb.getOperation(@gateway_id)
 		puts "RES"
 		puts res
-		puts "RES2"
+		puts "RES2  *#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#"
+		puts "RES2  *#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#"
 		puts res2
+		puts "RES2  *#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#"
+		puts "RES2  *#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#"
 		@clouddb.setOperationStatus(res2.values[0]["operation_id"],0)
 		data = {
 			"min" => limit_min,
@@ -272,7 +275,7 @@ class SensingControlDaemon
 				begin
 					#value = data["value"] #DEBUG
 					#value = 1 #DEBUG
-					p "#{send_data} SEND DATA OKURYAAAAAAAAAAAA ##########################"
+					p "#{send_data}"
 					@sensor.send_data(send_data["min"].to_f,send_data["max"].to_f,send_data["value"],send_data["addr"])
 				rescue
 					puts "senddata skip"

@@ -46,7 +46,7 @@ class ZigBeeReceiveFrame
   end
 
   def send_data(data,addr)
-	puts "#{addr} OKUTEEEEEEEEEEEEEEE #####################"
+	puts "#{addr} #####################"
      sdata_str = data.unpack("H*")
      #send_data_str = [@@xbee["cmd"], @@xbee["frmid"], @@xbee["dstaddr"] ,@@xbee["localdst"] ,@@xbee["option"], sdata_str].join(" ")
      send_data_str = [@@xbee["cmd"], @@xbee["frmid"], addr ,@@xbee["localdst"] ,@@xbee["option"], sdata_str].join(" ")
@@ -60,7 +60,7 @@ puts "#{all_data_str}"
      all_data_ary = [all_data_str.tr(" ","")]
 puts "#{all_data_ary}"
      all_data_bin = all_data_ary.pack("H*")
-	puts "#{all_data_bin} SAIGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"
+	puts "#{all_data_bin}"
      @sp.write(all_data_bin)
   end
 
@@ -143,6 +143,7 @@ puts "#{all_data_ary}"
       if @count > 2 then
         if @count > length then
           chknum = @raw_data[14,1]
+          #chknum = @raw_data[16,1]
           if chknum != ["3"] then
             @count = 0
             puts "sensor error st= #{chknum}"
@@ -156,15 +157,17 @@ puts "#{all_data_ary}"
     end
 
     #@outdata = @raw_data[14,12]
-    @outdata = []
+     @outdata = []
 puts "#{@raw_data}########################################RAWDATA"
     tmpdata = nil
     tmpdata = @raw_data.join[4,1].unpack("H*").pop + "13" + @raw_data.join[5,6].unpack("H*").pop
-puts tmpdata
-    #@outdata = @raw_data.join[4,7].unpack("H*") + @raw_data[14,1] + @raw_data[16,1] + @raw_data.join[18,6].split(" ") + @raw_data[25,1]
+    #puts tmpdata
+    #@outdata = @raw_data.join[4,8].unpack("H*") + @raw_data[14,1] + @raw_data[16,1] + @raw_data.join[18,6].split(" ") + @raw_data[26,1]
+    #@outdata = @raw_data.join[4,9].unpack("H*") + @raw_data[16,1] + @raw_data[18,1] + @raw_data.join[20,6].split(" ") + @raw_data[27,1]
     @outdata << tmpdata
     @outdata = @outdata + @raw_data[14,1] + @raw_data[16,1] + @raw_data.join[18,6].split(" ") + @raw_data[25,1]
 puts "#{@outdata}########################################OUTDATA"
+    p @outdata
     #return textstr
     return 1
   end

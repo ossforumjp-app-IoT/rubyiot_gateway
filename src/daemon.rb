@@ -82,16 +82,22 @@ class DataProcessHandler
 		puts res2
 		puts "RES2  *#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#"
 		puts "RES2  *#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#"
-		@clouddb.setOperationStatus(res2.values[0]["operation_id"],0)
+		#@clouddb.setOperationStatus(res2.values[0]["operation_id"],0)
 		data = {
 			"min" => limit_min,
 			"max" => limit_max,
 			"value" => res2.values[0]["value"],
-			"addr" => @uid_hash.key(id)
+			"addr" => @uid_hash.key(id),
+			"operation" => res2.values[0]["operation_id"]
 		}
 		puts "data"
 		puts data
 		return data
+	end
+
+	def set_operation_status(ope_id,result)
+		p __method__
+		@clouddb.setOperationStatus(ope_id,result)
 	end
 
 	def has_sensor_id(id)
@@ -278,8 +284,10 @@ class SensingControlDaemon
 					p "#{send_data}"
 					@sensor.send_data(send_data["min"].to_f,send_data["max"].to_f,send_data["value"],send_data["addr"])
 				rescue
+					@data_process_handler.set_operation_status(data["operation"],1)
 					puts "senddata skip"
 				end
+					@data_process_handler.set_operation_status(data["operation"],0)
 			end
 		end
 		# ループ周期

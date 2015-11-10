@@ -41,7 +41,7 @@ class DataProcessHandler
 		end
 		@uid_hash = Hash.new
 ###################################debug
-res3 = @clouddb.setOperation(61, 0)
+res3 = @clouddb.setOperation(61, 1)
 puts "setOperation=#{res3.body}"
 ###################################
 
@@ -71,7 +71,7 @@ puts "setOperation=#{res3.body}"
 
 	def process_data(id)
 ###################################debug
-res3 = @clouddb.setOperation(61, 0)
+res3 = @clouddb.setOperation(61, 1)
 puts "setOperation=#{res3.body}"
 ###################################
 

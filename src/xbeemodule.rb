@@ -29,6 +29,7 @@ class ZigBeeReceiveFrame
 	      @sp = SerialDummyFile.new
 	    else
 	      @sp = SerialPort.new(spconf["device"], spconf["boudrate"], spconf["databits"], spconf["stopbits"], spconf["parity"])
+		#@sp.flow_control = SerialPort::NONE
 			end
 		rescue
 			puts "SerialPort open error"

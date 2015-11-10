@@ -70,6 +70,11 @@ puts "setOperation=#{res3.body}"
 	end 
 
 	def process_data(id)
+###################################debug
+res3 = @clouddb.setOperation(61, 0)
+puts "setOperation=#{res3.body}"
+###################################
+
 		p __method__
 		res = @clouddb.getMonitorRange(id)
 		limit_min = res["min"]
@@ -82,16 +87,22 @@ puts "setOperation=#{res3.body}"
 		puts res2
 		puts "RES2  *#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#"
 		puts "RES2  *#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#"
-		@clouddb.setOperationStatus(res2.values[0]["operation_id"],0)
+		#@clouddb.setOperationStatus(res2.values[0]["operation_id"],0)
 		data = {
 			"min" => limit_min,
 			"max" => limit_max,
 			"value" => res2.values[0]["value"],
-			"addr" => @uid_hash.key(id)
+			"addr" => @uid_hash.key(id),
+			"operation" => res2.values[0]["operation_id"]
 		}
 		puts "data"
 		puts data
 		return data
+	end
+
+	def set_operation_status(ope_id,result)
+		p __method__
+		@clouddb.setOperationStatus(ope_id,result)
 	end
 
 	def has_sensor_id(id)
@@ -100,7 +111,6 @@ puts "setOperation=#{res3.body}"
 			res = @clouddb.postDevice(@gateway_id,id)
 			@uid_hash.store(id,res.values[0][0]["id"])
 			res2 = @clouddb.setMonitorRange(@uid_hash[id], 11, 30) #debug
-			res2 = @clouddb.setMonitorRange(@uid_hash[id], 10, 30) #debug
 			puts res.values[0][0]["id"]
 			puts res.values[0][1]["id"]
 		end
@@ -276,8 +286,10 @@ class SensingControlDaemon
 					#value = data["value"] #DEBUG
 					#value = 1 #DEBUG
 					p "#{send_data}"
-					@sensor.send_data(send_data["min"].to_f,send_data["max"].to_f,send_data["value"],send_data["addr"])
+					@sensor.send_data(send_data["max"].to_f,send_data["min"].to_f,send_data["value"],send_data["addr"])
+					@data_process_handler.set_operation_status(send_data["operation"],0)
 				rescue
+					@data_process_handler.set_operation_status(send_data["operation"],1)
 					puts "senddata skip"
 				end
 			end

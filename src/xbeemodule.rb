@@ -56,7 +56,7 @@ class ZigBeeReceiveFrame
      sum_str = sprintf("%02x", sum)
 
      all_data_str = [@@xbee["stcode"], @@xbee["len"], send_data_str, sum_str].join(" ")
-puts "#{all_data_str}"
+puts "#{all_data_str}************************************"
      all_data_ary = [all_data_str.tr(" ","")]
 puts "#{all_data_ary}"
      all_data_bin = all_data_ary.pack("H*")

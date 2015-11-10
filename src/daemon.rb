@@ -70,6 +70,11 @@ class DataProcessHandler
 	end 
 
 	def process_data(id)
+###################################debug
+res3 = @clouddb.setOperation(61, 0)
+puts "setOperation=#{res3.body}"
+###################################
+
 		p __method__
 		res = @clouddb.getMonitorRange(id)
 		limit_min = res["min"]
@@ -106,7 +111,7 @@ class DataProcessHandler
 			res = @clouddb.postDevice(@gateway_id,id)
 			@uid_hash.store(id,res.values[0][0]["id"])
 			###########################res2 = @clouddb.setMonitorRange(@uid_hash[id], 10, 30) #debug
-			res2 = @clouddb.setMonitorRange(@uid_hash[id], 10, 30) #debug
+			res2 = @clouddb.setMonitorRange(@uid_hash[id], 11, 30) #debug
 			puts res.values[0][0]["id"]
 			puts res.values[0][1]["id"]
 		end
@@ -282,12 +287,12 @@ class SensingControlDaemon
 					#value = data["value"] #DEBUG
 					#value = 1 #DEBUG
 					p "#{send_data}"
-					@sensor.send_data(send_data["min"].to_f,send_data["max"].to_f,send_data["value"],send_data["addr"])
+					@sensor.send_data(send_data["max"].to_f,send_data["min"].to_f,send_data["value"],send_data["addr"])
+					@data_process_handler.set_operation_status(send_data["operation"],0)
 				rescue
-					@data_process_handler.set_operation_status(data["operation"],1)
+					@data_process_handler.set_operation_status(send_data["operation"],1)
 					puts "senddata skip"
 				end
-					@data_process_handler.set_operation_status(data["operation"],0)
 			end
 		end
 		# ループ周期

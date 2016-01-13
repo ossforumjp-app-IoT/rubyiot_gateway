@@ -18,6 +18,7 @@ class Gateway
 		@http = HTTPClient.new
 		#@http = HTTPClient.new("PROXY_URL:PROXY_PORT")
 		#@http.set_proxy_auth("LOGINID","PASSWD")
+
 		@http.set_auth(@server, @usr, Digest::SHA256.hexdigest(@pwd))
 		@gwid = gwid
 		@f = File.open("gateway#{@gwid}.log","w")

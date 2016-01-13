@@ -21,7 +21,7 @@ class Gateway
 
 		@http.set_auth(@server, @usr, Digest::SHA256.hexdigest(@pwd))
 		@gwid = gwid
-		@f = File.open("gateway#{@gwid}.log","w")
+		@f = File.open("./Log/gateway#{@gwid}.log","w")
 	end
 
 	def login

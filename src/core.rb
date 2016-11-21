@@ -26,6 +26,9 @@ class LocalDb
     @http = Net::HTTP.new(server, port)
   end
 
+
+#test
+
   # センサの監視値（上限値・下限値）を取得するメソッド
   #   @param [Integer] センサーID
   #
@@ -86,9 +89,9 @@ class CloudDb
 
 =begin
 		#PROXY
-		proxy_host = 
-		proxy_user = 
-		proxy_passwd = 
+		proxy_host =
+		proxy_user =
+		proxy_passwd =
 =end
 		#@http = HTTPClient.new(proxy_host)
 		@http = HTTPClient.new
@@ -249,7 +252,7 @@ class CloudDb
 #    huid_hash = {'hardware_uid' => '0013a2004066107e',
 #                 		'class_group_code' => '0x00',
 #		                 'class_code' => '0x11',
-#                 'properties' => [{ 
+#                 'properties' => [{
 #				   '0x00' => 'sensor',
 #                                   '0x01' => 'controller',
 #				   'type' => 'sensor'},
@@ -261,12 +264,12 @@ class CloudDb
 		 'class_group_code' => '0x00',
 		 'class_code' => '0x00',
                  'properties' => [
-				{ 
+				{
 		                'class_group_code' => '0x00',
 		                'class_code' => '0x00',
 				'property_code'=>'0x30',
 				   'type' => 'sensor'},
-				{ 
+				{
 		                'class_group_code' => '0x00',
 		                'class_code' => '0x00',
 				'property_code'=>'0x31',
@@ -292,7 +295,7 @@ class CloudDb
 					'type' => 'controller'
 				}
 			]
-		} 
+		}
     post_data = huid_hash.to_json
     debug("POST Data : #{post_data}")
     res = @http.post('http://rubyiot.rcloud.jp/api/device', post_data)
@@ -445,4 +448,3 @@ class Sensor
 	end
 
 end
-

@@ -19,22 +19,20 @@ require 'pry'
 class LocalDbData < ActiveRecord::Base
 end
 
-# ラズベリーパイ内に持つＤＢへのアクセスを実装する
+# Raspberry Pi 内に持つ　Database　へのアクセス実装
+# @attr [Net::HTTP] http NET::HTTPのインスタンス
 class LocalDb
 
-  # ローカルDBの初期化
-  #   @author
+  # LocalDbの初期化
   #   @param [String] sever
   #   @param [String] port
-  #   @return [void]
   def initialize(server, port)
     @http = Net::HTTP.new(server, port)
   end
 
-  # センサの監視値（上限値・下限値）を取得するメソッド
+  # sensorの監視値（上限値・下限値）を取得する
   #   @param [Integer] sensor_id センサーID
-  #   クラウドにアクセスして監視値（上限値・下限値）を取得します。
-  #   @return メソッドの結果としてはハッシュで返します。
+  #   @return [Hash] {"min": "下限値", "max": "上限値"}
   def getMonitorRange(sensor_id)
     query_hash = { 'sensor_id' => sensor_id }
     debug("GET Query Data : #{query_hash.to_query}")
@@ -42,10 +40,11 @@ class LocalDb
     JSON.parse(response.body)
   end
 
-  # ローカルDBへのセンサデータ蓄積メソッド
-  #   @param [Integer] sensor_id センサーID
-  #   @param [String]  timestamp タイムスタンプ
-  #   @param [Integer] sensing_data センシングデータ
+  # ローカルDBにセンサーの測定データを登録
+  # @todo timestamp は利用されないので、後に削除
+  #   @param [Integer] sensor_id    センサーID
+  #   @param [String]  timestamp    タイムスタンプ
+  #   @param [Integer] sensing_data センサの測定値
   def storeSensingData(sensor_id, timestamp, sensing_data)
     debug("storeSensingData call")
     query_hash = {sensor_id => sensing_data.to_s}
@@ -60,7 +59,9 @@ class LocalDb
   end
 
   # センサ情報取得メソッド
-  #   @param [Integer] ゲートウェイID
+  #   @param [Integer]　gateway_id ゲートウェイID
+  #   @return [Hash] センサの情報
+  #   @see https://github.com/ossforumjp-app-IoT/rubyiot_server に参考
   def getSensor(gateway_id)
     query_hash = { 'gateway_id' => gateway_id }
     debug("GET Query Data : #{query_hash.to_query}")
@@ -68,12 +69,13 @@ class LocalDb
     JSON.parse(response.body)
   end
 
+  # messageを表示
   def debug(msg)
     puts "  " + msg
   end
 end
 
-# クラウド上のＤＢアクセスクラス
+# クラウド上のDatabaseアクセスクラス
 class CloudDb
   # クラウド上のＤＢアクセスクラスの初期化
   #

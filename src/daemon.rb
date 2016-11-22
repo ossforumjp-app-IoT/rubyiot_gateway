@@ -11,8 +11,8 @@ class DataProcessHandler
 		@gateway_id = 1
 #		@gateway_id = 2
 
-		@localdb_host = "localhost"
-		@localdb_port = 3131
+		# @localdb_host = "localhost"
+		# @localdb_port = 3131
 		@cloud_host = 'http://rubyiot.rcloud.jp'
 		@cloud_port   = 80
 
@@ -55,10 +55,16 @@ puts "setOperation=#{res3.body}"
 		rescue
 			puts "db store data error"
 		end
-		
+
 		p resCloud
 	end
 
+
+	# クラウドに異常を警告する
+  #   @param [Integer] id センサID
+  #   @param [Integer] temp センサ温度
+  #   @param [Integer] min センサ異常値下限
+	#   @param [Integer] max センサ異常値上限
 	def notify_alert(id,temp,min,max)
 		p __method__
 		begin
@@ -67,7 +73,7 @@ puts "setOperation=#{res3.body}"
 			puts "clouddb setSensorAlert Error"
 		end
 		#puts "##### 応答: #{res.body}"
-	end 
+	end
 
 	def process_data(id)
 ###################################debug
@@ -100,6 +106,7 @@ puts "setOperation=#{res3.body}"
 		return data
 	end
 
+# ope_id -> gateway_id ? 確認
 	def set_operation_status(ope_id,result)
 		p __method__
 		@clouddb.setOperationStatus(ope_id,result)
@@ -145,7 +152,7 @@ class SensorMonitor
 			"fail_status" => @sensor.get_fail_status.to_i,
 			"addr" => @sensor.get_addr.to_s,
 		}
-		p data	
+		p data
 		@recv_queue.push(data)
 	end
 
@@ -193,8 +200,8 @@ class SensingControlDaemon
     @interval = 3
 
     @setopeflag = 0
-    #@sensor_id = 9 
-    @sensor_id = 1 
+    #@sensor_id = 9
+    @sensor_id = 1
     @local_sensor_id = 15
   end
 
@@ -238,14 +245,14 @@ class SensingControlDaemon
 		break if @term_flag == true
 		puts "loop = #{@loop_count}"
 		@recv_queue = @sensor.get_queue
-		
+
 		l = @recv_queue.length
 		puts l, "recv_queue length"
 		l.times do #TIMES1
 			data = @recv_queue.pop
 			# DB格納処理
 			if Time.now > @settime then
-				begin 
+				begin
 					@settime = Time.now + @interval
 					# センシングデータ格納処理
 					timestamp = Time.now.strftime("%Y/%m/%d %H:%M:%S")
@@ -305,4 +312,3 @@ end #class SensingControlDaemon
 
 daemon_app = SensingControlDaemon.new
 daemon_app.exec
-

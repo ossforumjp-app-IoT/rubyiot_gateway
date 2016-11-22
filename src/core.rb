@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-#test
+
 require 'rubygems'
 require 'uri'
 require 'net/http'
@@ -21,19 +21,20 @@ end
 
 # ラズベリーパイ内に持つＤＢへのアクセスを実装する
 class LocalDb
-  # ローカルDBの初期化を行うメソッド
+
+  # ローカルDBの初期化
+  #   @author
+  #   @param [String] sever
+  #   @param [String] port
+  #   @return [void]
   def initialize(server, port)
     @http = Net::HTTP.new(server, port)
   end
 
-
-#test
-
   # センサの監視値（上限値・下限値）を取得するメソッド
-  #   @param [Integer] センサーID
-  #
-  # クラウドにアクセスして監視値（上限値・下限値）を取得します。
-  # メソッドの結果としてはハッシュで返します。
+  #   @param [Integer] sensor_id センサーID
+  #   クラウドにアクセスして監視値（上限値・下限値）を取得します。
+  #   @return メソッドの結果としてはハッシュで返します。
   def getMonitorRange(sensor_id)
     query_hash = { 'sensor_id' => sensor_id }
     debug("GET Query Data : #{query_hash.to_query}")
@@ -42,9 +43,9 @@ class LocalDb
   end
 
   # ローカルDBへのセンサデータ蓄積メソッド
-  #   @param [Integer] センサーID
-  #   @param [String]  タイムスタンプ
-  #   @param [Integer] センシングデータ
+  #   @param [Integer] sensor_id センサーID
+  #   @param [String]  timestamp タイムスタンプ
+  #   @param [Integer] sensing_data センシングデータ
   def storeSensingData(sensor_id, timestamp, sensing_data)
     debug("storeSensingData call")
     query_hash = {sensor_id => sensing_data.to_s}
@@ -185,7 +186,7 @@ class CloudDb
 
   # 操作状態設定メソッド
   #   @param [Integer] ゲートウェイID
-  #   @param [Integer] 状態
+  #   @param [Integer] 扇風機の状態
   def setOperationStatus(gateway_id, status)
     debug("setOperationStatus call")
     query_hash = {gateway_id => status.to_s}

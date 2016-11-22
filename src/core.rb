@@ -112,9 +112,9 @@ class CloudDb
   end
 
   # センサの監視値（上限値・下限値）を登録・更新するメソッド
-  #   @param [Integer] センサーID
-  #   @param [Integer] 監視値下限値
-  #   @param [Integer] 監視値上限値
+  #   @param [Integer] sensor_id  センサーID
+  #   @param [Integer] min        監視値下限値
+  #   @param [Integer] max        監視値上限値
   #
   # クラウドにアクセスして登録されている監視値（上限値・下限値）を更新します。
   def setMonitorRange(sensor_id, min, max)
@@ -128,81 +128,71 @@ class CloudDb
   end
 
   # センサの監視値（上限値・下限値）を取得するメソッド
-  #   @param [Integer] センサーID
-  #
-  # クラウドにアクセスして監視値（上限値・下限値）を取得します。
-  # メソッドの結果としてはハッシュで返します。
+  #   @param [Integer] sensor_id センサーID
+  #   @return [Hash]   { "xxx": { "min": "下限値", "max": "上限値" } } (xxx: sensor_id)
   def getMonitorRange(sensor_id)
     query_hash = { 'sensor_id' => sensor_id }
     debug("GET Query Data : #{query_hash.to_query}")
     res = @http.get("http://rubyiot.rcloud.jp/api/monitor?#{query_hash.to_query}")
-    #		puts res
-    #    puts JSON.parse(res.body)
     JSON.parse(res.body)
   end
 
-  # センサデータ蓄積メソッド
-  #   @param [Integer] センサーID
-  #   @param [String]  タイムスタンプ
-  #   @param [Integer] センシングデータ
+  # センサーの測定データを登録
+  #   @param [Integer]  sensor_id     センサーID
+  #   @param [String]   timestamp     タイムスタンプ
+  #   @param [Integer]  sensing_data  センシングデータ
   def storeSensingData(sensor_id, timestamp, sensing_data)
     debug("storeSensingData call")
     query_hash = {sensor_id => sensing_data.to_s}
     post_data = query_hash.to_json
     debug("POST Data : #{post_data}")
     res = @http.post('http://rubyiot.rcloud.jp/api/sensor_data', post_data)
-    #    puts JSON.parse(res.body)
-    #    return res
-    #return JSON.parse(res.body)
   end
 
   # リモート操作指示状態を取得するメソッド
-  #   @param [Integer] ゲートウェイID
-  #def getOperation(gateway_id)
-  def getOperation(hardware_uid)
-    #query_hash = { 'gateway_id' => gateway_id }
-    query_hash = { 'hardware_uid' => hardware_uid }
+  #   @param [Integer] gateway_id ゲートウェイID
+  def getOperation(gateway_id)
+#  def getOperation(hardware_uid)
+#    query_hash = { 'hardware_uid' => hardware_uid }
+    query_hash = { 'gateway_id' => gateway_id }
     debug("GET Query Data : #{query_hash.to_query}")
     res = @http.get("http://rubyiot.rcloud.jp/api/operation?#{query_hash.to_query}")
     JSON.parse(res.body)
   end
 
-  # 操作状態設定メソッド
-  #   @param [Integer] ゲートウェイID
-  #   @param [Integer] 扇風機の状態
+  #  controllerへの操作指示を登録
+  #   @param [Integer] gateway_id  ゲートウェイID
+  #   @param [Integer] status      扇風機の状態
   def setOperationStatus(gateway_id, status)
     debug("setOperationStatus call")
     query_hash = {gateway_id => status.to_s}
     post_data = query_hash.to_json
     debug("POST Data : #{post_data}")
     res = @http.post('http://rubyiot.rcloud.jp/api/operation_status', post_data)
-    puts res
     #return JSON.parse(res.body)
   end
 
-  # センサalert設定メソッド
-  #   @param [Integer] センサID
-  #   @param [Integer] 測定値
-  #   @param [Integer] 下限値
-  #   @param [Integer] 上限値
+  # センサーの測定データを登録
+  #   @param [Integer] sensor_id センサID
+  #   @param [Integer] value     測定値
+  #   @param [Integer] min      下限値
+  #   @param [Integer] max      上限値
   def setSensorAlert(sensor_id, value, min, max)
     monitor_range = {'value' => value, 'min' => min, 'max' => max}
     s_alert = { sensor_id => monitor_range }
     post_data = s_alert.to_json
     debug("POST Data : #{post_data}")
     res = @http.post('http://rubyiot.rcloud.jp/api/sensor_alert', post_data)
-    #		puts res
-    puts JSON.parse(res.body)
   end
 
-  # センサ情報取得メソッド
-  #   @param [Integer] ゲートウェイID
+  # 指定したgatewayの配下にあるsensorのリストを取得
+  #   @param [String] gateway_id ゲートウェイID
+  #   @return [Hash] a list of sensors information
+  #   @see https://github.com/ossforumjp-app-IoT/rubyiot_server
   def getSensor(gateway_id)
     query_hash = { 'gateway_id' => gateway_id }
     debug("GET Query Data : #{query_hash.to_query}")
     response = @http.get("http://rubyiot.rcloud.jp/api/sensor?#{query_hash.to_query}")
-    #puts res
-    #    puts JSON.parse(res.body)
     JSON.parse(response.body)
   end
 

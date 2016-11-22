@@ -206,37 +206,12 @@ class CloudDb
     JSON.parse(response.body)
   end
 
-  # デバイス情報設定メソッド
+  # sensorやcontrollerが接続されたdeviceを、登録・更新
+  # @param [String] gateway_id  gatewayのhardware_uid(Seriarl、MACなど) Ex: 0013a2004066107e
+  # @param [String] device_id   deviceのhardware_uid(Seriarl、MACなど)  Ex: 0013a2004066107e
+  # @return [Hash] @see https://github.com/ossforumjp-app-IoT/rubyiot_server for fulllist
   def postDevice(gateway_id,device_id)
-=begin
-  def postDevice
-#    huid_hash = {'hardware_uid' => '0013a2004066107e',
-#                 		'class_group_code' => '0x00',
-#		                 'class_code' => '0x11',
-#                 'properties' => [{
-#				   '0x00' => 'sensor',
-#                                   '0x01' => 'controller',
-#				   'type' => 'sensor'},
-#				   {'0x02' => 'sensor',
-#				   '0x03' => 'controller',
-#				   'type' => 'controller'}]}
 
-    huid_hash = {'hardware_uid' => '0013a2004066cccc',
-		 'class_group_code' => '0x00',
-		 'class_code' => '0x00',
-                 'properties' => [
-				{
-		                'class_group_code' => '0x00',
-		                'class_code' => '0x00',
-				'property_code'=>'0x30',
-				   'type' => 'sensor'},
-				{
-		                'class_group_code' => '0x00',
-		                'class_code' => '0x00',
-				'property_code'=>'0x31',
-				   'type' => 'controller'}
-				   ]}
-=end
     huid_hash = {
       'gateway_uid' => gateway_id,
       'device_uid' => device_id,
@@ -260,11 +235,10 @@ class CloudDb
     post_data = huid_hash.to_json
     debug("POST Data : #{post_data}")
     res = @http.post('http://rubyiot.rcloud.jp/api/device', post_data)
+
     puts "--- 応答 ---"
-    #		puts res
     puts JSON.parse(res.body)
     return JSON.parse(res.body)
-    #return JSON.parse(response.body)
 
   end
 
@@ -274,12 +248,19 @@ class CloudDb
 
   # ログインメソッド
   def login
-    post_hash = { #'username' => @username,
-      'username' => 'aaa',
-      #'password_hash' => Digest::SHA256.hexdigest(@password) }
-      'password_hash' => Digest::SHA256.hexdigest('aaa') }
+
+    # username/password for http://rubyiot.rcloud.jp/api/login
+    username = 'aaa'
+    password = 'aaa'
+
+    post_hash = {
+      'username' => username,
+      'password_hash' => Digest::SHA256.hexdigest(password)
+    }
+
     post_data = post_hash.to_json
     res = @http.post('http://rubyiot.rcloud.jp/api/login', post_data)
+
   end
 
   # ログアウトメソッド
@@ -287,9 +268,9 @@ class CloudDb
     res = @http.get('http://rubyiot.rcloud.jp/api/logout')
   end
 
-  # controllerへの操作指示を登録する
-  # @param [Integer] コントローラID
-  # @param [Integer] ON/OFF(0/1)
+  # controllerへの操作指示を登録
+  # @param [Integer] controller_id  コントローラID
+  # @param [Integer] operation      ON/OFF(0/1)
   def setOperation(controller_id, operation)
     post_hash = { controller_id => operation }
     post_data = post_hash.to_json
@@ -300,15 +281,16 @@ end
 
 # センサクラス
 # XbeeでFM3と接続して温度照度を取得する仕事
+# @attr [ZigBeeReceiveFrame] zigrecv ZigBeeReceiveFrame instance
 class Sensor
   # センシング情報を取ってくるメソッド
   def initialize
     @zigrecv = ZigBeeReceiveFrame.new
   end
 
+  # Xbeeのデータ取得
   def recvdata
     @zigrecv.recv_data
-    #@zigrecv.recv_data_dummy
   end
 
   def senddata(limit_max,limit_min,sensorctl,addr)
@@ -320,8 +302,10 @@ class Sensor
       limit_min = limit_min * -1
       min_expr = '-'
     end
+
     tmpminstr = limit_min.to_s
     tmp_min_x = tmpminstr.split(".")
+
     if tmp_min_x.length == 1 then
       tmp_min_x.push("0")
     end
@@ -330,6 +314,7 @@ class Sensor
       limit_max = limit_max * -1
       max_expr = '-'
     end
+
     tmpmaxstr = limit_max.to_s
     tmp_max_x = tmpmaxstr.split(".")
     if tmp_max_x.length == 1 then
@@ -371,6 +356,7 @@ class Sensor
 end
 
 # CloudDbの利用しない methods
+# @warning 削除すべきので、利用しない
 class CloudDbExtend < CloudDb
   # センサ情報設定メソッド
   #   @param [Integer] センサID

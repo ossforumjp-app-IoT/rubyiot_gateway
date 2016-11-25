@@ -12,37 +12,39 @@ class Controller
 
 end
 
-# Enum DoorStatus
+# Enum DOOR_STATUS ドアの状態
 module DOOR_STATUS
   CLOSING = 0
   OPENING = 1
 end
 
+# Enum DOOR_OPERATION ドアの制御動作
+module DOOR_OPERATION
+  CLOSE = 0
+  OPEN  = 1
+end
+
 # ドアを制御するController
 # @author FAE
-# @attr_reader [Integer]        loopDelay   Controllerの
 # @attr_reader [ZigbeeHandler]  zigbee
-# @attr_reader [DoorStatus]     flag        ドアの状態　
+# @attr_reader [DoorStatus]     status        ドアの現在状態　
 class DoorController < Controller
 
-  attr_reader :loopDelay, :zigbeeHandler, :flag
+  attr_reader :zigbeeHandler, :flag
   # Controllerの初期化
   def initialize()
-    @loopDelay =    1000 #ms
     @zigbeeHandler = ZigbeeHandler.new();
-    @flag =          DOOR_STATUS::CLOSING
+    @status        = DOOR_STATUS::CLOSING
   end
 
   # ドアの状態を設定
   # @todo
   def closeDoor()
-    @flag = DOOR_STATUS::CLOSING
-    operateDoor()
+    operateDoor(DOOR_OPERATION::CLOSE)
   end
 
   def openDoor()
-    @flag = DOOR_STATUS::OPENING
-    operateDoor()
+    operateDoor(DOOR_OPERATION::OPEN)
   end
 
   def getDoorStatus()
@@ -51,12 +53,25 @@ class DoorController < Controller
 
   private :operateDoor
 
-  def operateDoor()
-    put case @flag
-    when DOOR_STATUS::CLOSING
-      puts "Close the door"
-    when DOOR_STATUS::OPENING
-      puts "Open the door"
+  def operateDoor(operation_)
+    put case operation_
+
+    when DOOR_OPERATION::CLOSE
+      if @flag == DOOR_STATUS::CLOSING
+        puts "Door is already closing"
+      else
+        puts "Close the door"
+        @flag = DOOR_STATUS::CLOSING
+      end
+
+    when DOOR_OPERATION::OPEN
+      if @flag == DOOR_STATUS::OPENING
+        puts "Door is alread open"
+      else
+        puts "Open the door"
+        @flag = DOOR_STATUS::OPENING
+      end
+
     end
   end
 end
@@ -69,20 +84,20 @@ end
 
 # ボータンの状況を監視するController
 # @author FAE
-# @attr_reader [Integer]        loopDelay   監視の周期（ms）
 # @attr_reader [ZigbeeHandler]  zigbeeHanlder
 # @attr_reader [BUTTON_STATUS]  btnStatus   ボタンの状況
+# @attr_reader [String]  btnUID   ボタンのUID
 class ButtonController < Controller
 
-  attr_reader :loopDelay, :zigbee, :btnStatus
+  attr_reader :zigbee, :btnStatus, :btnUID
   def initialize()
-    @loopDelay      = 100 #ms
     @zigbeeHandler  = ZigbeeHandler.new();
     @btnStatus      = BUTTON_STATUS::UNPUSHED
+    @btnUID         = "UID of the button"
   end
 
   def getBtnStatus()
-    btnStatus = @zigbeeHandler.getSomething();
+    return @zigbeeHandler.readData(@btnUID)
   end
 
 end

@@ -276,11 +276,17 @@ class Sensor
     @zigrecv = ZigBeeReceiveFrame.new
   end
 
-  # Xbeeのデータ取得
+  # Serial経由でXbeeのデータ取得
   def recvdata
     @zigrecv.recv_data
   end
 
+  # Serial経由でXbeeにデータを送る
+  #   @param [Numeric] limit_max    上限値
+  #   @param [Numeric] limit_min    下限値
+  #   @param [Numeric] sensorctl    ????
+  #   @param [Numeric] addr         Xbeeのmac address
+  #   @todo データ送るかデータを設定することか？
   def senddata(limit_max,limit_min,sensorctl,addr)
 
     min_expr = '+'

@@ -5,8 +5,6 @@ require './datahandler'
 module MAIN_PARAMETER
   MAIN_LOOP_DL    = 0.1   # 0.1 second
   BTN_LOOP_DL  = 0.1 # 0.1 second
-  BTN_CTL_MAX_COUNT = 1
-  BTN_STATUS
 end
 
 # RubyIoT 2016のMain処理
@@ -34,10 +32,10 @@ class Main
     self.main()
   end
 
-  private :daemonlizeBtnCtl, :captureImg, :recogImg, :operateDoor, :main
+  private :daemonlizeBtnCtl, :captureImg, :recogImg, :operateDoor, :mainLoop
 
   # RubyIot 2016のタスクのmain loop
-  def main
+  def mainLoop
 
     while true
 

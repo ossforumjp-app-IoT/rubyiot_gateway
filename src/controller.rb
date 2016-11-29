@@ -6,7 +6,7 @@ class Controller
   MESS = "SYSTEM ERROR: method missing"
   def initalize; raise MESS; end
 
-  def getFlagStatus; raise MESS; end
+  def getStatus; raise MESS; end
 
 end
 
@@ -46,7 +46,7 @@ class DoorController < Controller
   end
 
   # ドアの状態を取得 : Dummy method
-  def getDoorStatus()
+  def getStatus()
     return @doorStatus
   end
 
@@ -97,7 +97,7 @@ class ButtonController < Controller
   end
 
   # 無線経由でボタンの状態を取得
-  def getBtnStatus()
+  def getStatus()
     return @zigbeeHandler.readData(@btnUID)
   end
 
@@ -133,7 +133,7 @@ class ZigbeeHandler
 
   # Deviceに情報を書く（devUIDによる書き方が違う）
   # @todo zigbee module でセンサにデータを書く際に何か必要？仲里さんに頼む
-  # @param [String] devUIS DeviceのUID
+  # @param [String] devUID DeviceのUID
   # @param [String] data   Deviceに書くデータ
   def writeData(devUID, data)
     put case devUID
@@ -159,6 +159,11 @@ class ZigbeeHandler
 
 end
 
+module CAMERA_STATUS
+  AVAILABLE = 0
+  UNAVAILABLE = 1
+end
+
 class CameraController < Controller
 
   # memory location on disk
@@ -166,6 +171,11 @@ class CameraController < Controller
 
   # カメラ初期化
   def initialize
+  end
+
+  # カメラの状態を取得
+  def getStatus()
+    return CAMERA_STATUS::AVAILABLE;
   end
 
   def captureImage()

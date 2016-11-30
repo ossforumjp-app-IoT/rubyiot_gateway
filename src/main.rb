@@ -29,7 +29,7 @@ class Main
   # 処理の全体
   def exec
     self.daemonlizeBtnCtl()
-    self.main()
+    self.mainLoop()
   end
 
   private :daemonlizeBtnCtl, :captureImg, :recogImg, :operateDoor, :mainLoop

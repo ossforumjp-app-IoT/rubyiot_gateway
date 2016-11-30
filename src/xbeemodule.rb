@@ -24,7 +24,7 @@ class ZigBeeReceiveFrame
 
   def initialize
     spconf = @@xbee["serialport"]
-		begin	
+		begin
 	    if spconf["device"] == "dummy"
 	      @sp = SerialDummyFile.new
 	    else
@@ -41,11 +41,15 @@ class ZigBeeReceiveFrame
 	#	@f = File.open('format.txt', "r")
   end
 
-  # センサの文字列データのみを取得する
+  # センサのデータを文字列に変換して取得する
+  #   @return [String] 文字列に変換したセンサのデータ
   def get_data
     return @outdata.join
   end
 
+  # センサのデータを送信する
+  #   @param [String] data
+  #   @param [Numeric] addr
   def send_data(data,addr)
 	puts "#{addr} #####################"
      sdata_str = data.unpack("H*")
@@ -66,35 +70,42 @@ puts "#{all_data_ary}"
   end
 
   # fan状態を取得する
+  #   @return [Integer] ファンの状態を取得
   def get_fan_status
     #return @outdata.join[2,1]
     return @outdata[2]	#DEBUG
   end
 
   # 温度を取得する
+  #   @return [Double] 温度を取得
   def get_temp
     #return @outdata.join[4,6]
     return @outdata[3] #DEBUG
   end
 
   # 異常状態を取得する
+  #   @return [String] センサの温度の状態を取得
   def get_fail_status
     #return @outdata.join[11,1]
     return @outdata[4] #DEBUG
   end
 
   # 装置状態を取得する
+  #   @return [String] センサの状態を取得
   def get_device_status
     #return @outdata.join[0,1]
     return @outdata[1]	#DEBUG
   end
 
 	# Get mac addr of the device
+  #   @return [String] センサデバイスのMACアドレスを取得する
 	def get_addr
 		return @outdata[0]
 		#return addr[0,1].unpack("H*")
 	end
 
+  # Get mac addr of the device
+  #   @return [Integer]
   def recv_data_dummy()
 		@outdata = @f.gets.chomp
 =begin
@@ -109,6 +120,7 @@ puts "#{all_data_ary}"
 =end
   end
 
+  # Get mac addr of the device
   def recv_data()
     @sp.flush_input
     @count = 0

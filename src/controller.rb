@@ -1,3 +1,5 @@
+
+# @todo JSONのparserを追加する
 # An abstract class for all Controller
 # @author FAE
 # @abstract
@@ -10,26 +12,26 @@ class Controller
 
 end
 
-
+# @todo ドア毎のIDとドアの状態を分けたほうが良いか
 # Enum DOOR_STATUS ドアの状態を定義
 module DOOR_STATUS
   BOTH_DOOR_CLOSING = 0
-  SMALL_DOOR_OPENING = 1
-  BIG_DOOR_OPENING = 2
+  ANIMAL_DOOR_OPENING = 1
+  HUMAN_DOOR_OPENING = 2
   BOTH_DOOR_OPENING = 3
 end
 
 # Enum DOOR_OPERATION ドアの制御動作を定義
 module DOOR_OPERATION
   BOTH_DOOR_CLOSE = 0
-  SMALL_DOOR_OPEN = 1 #人用のドアは閉める
-  BIG_DOOR_OPEN = 2   #動物用のドアは閉める
+  ANIMAL_DOOR_OPEN = 1 #人用のドアは閉める
+  HUMAN_DOOR_OPEN = 2   #動物用のドアは閉める
   BOTH_DOOR_OPEN = 3
 end
 
 # ドアを制御するController
 # @author FAE
-# @attr_reader [ZigbeeHandler]  zigbeeHandler          zigbeeモジュール
+# @attr_reader [ZigbeeHandler]  zigbeeHandler     zigbeeモジュール
 # @attr_reader [DoorStatus]     doorStatus        ドアの現在状態
 class DoorController < Controller
 
@@ -37,7 +39,7 @@ class DoorController < Controller
   # Controllerの初期化
   def initialize
     @zigbeeHandler = ZigbeeHandler.new
-    @doorStatus    = DOOR_STATUS::CLOSING
+    @doorStatus    = DOOR_STATUS::BOTH_DOOR_CLOSING
   end
 
   # ドアの状態を取得 : Dummy method
@@ -46,34 +48,36 @@ class DoorController < Controller
   end
 
   # ドアを制御する : Dummy method
+  # @todo operation_の結果はJSONで返ってくるので解析する必要がある。
+  #
   def operateDoor(operation_)
 
     case operation_
     when DOOR_OPERATION::BOTH_DOOR_CLOSE
       if @doorStatus == DOOR_STATUS::BOTH_DOOR_CLOSING
-        puts "Both door is already closing"
+        puts "Both door is already close"
       else
         puts "Close the both door"
         @doorStatus = DOOR_STATUS::BOTH_DOOR_CLOSING
         self.closeBothDoor()
       end
 
-    when DOOR_OPERATION::SMALL_DOOR_OPEN
-      if @doorStatus == DOOR_STATUS::SMALL_DOOR_OPENING
-        puts "Small door is already open"
+    when DOOR_OPERATION::ANIMAL_DOOR_OPEN
+      if @doorStatus == DOOR_STATUS::ANIMAL_DOOR_OPENING
+        puts "Animal door is already open"
       else
-        puts "Open the small door"
-        @doorStatus = DOOR_STATUS::SMALL_DOOR_OPENING
-        self.openSmallDoor()
+        puts "Open the animal door"
+        @doorStatus = DOOR_STATUS::ANIMAL_DOOR_OPENING
+        self.openAnimalDoor()
       end
 
-    when DOOR_OPERATION::BIG_DOOR_OPEN
-      if @doorStatus == DOOR_STATUS::BIG_DOOR_OPENING
+    when DOOR_OPERATION::HUMAN_DOOR_OPEN
+      if @doorStatus == DOOR_STATUS::HUMAN_DOOR_OPENING
         puts "Door is already open"
       else
         puts "Open the door"
-        @doorStatus = DOOR_STATUS::BIG_DOOR_OPENING
-        self.openBigDoor()
+        @doorStatus = DOOR_STATUS::HUMAN_DOOR_OPENING
+        self.openHumanDoor()
       end
 
     when DOOR_OPERATION::BOTH_DOOR_OPEN
@@ -89,8 +93,8 @@ class DoorController < Controller
   end
 
   private :closeBothDoor
-  private :openSmallDoor
-  private :openBigDoor
+  private :openAnimalDoor
+  private :openHumanDoor
   private :openBothDoor
 
   # 両方のドアを閉める
@@ -99,12 +103,12 @@ class DoorController < Controller
   end
 
   # 動物用のドアを開ける
-  def openSmallDoor
+  def openAnimalDoor
 
   end
 
   # 人用のドアを開ける
-  def openBigDoor
+  def openHumanDoor
 
   end
 

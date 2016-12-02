@@ -172,13 +172,14 @@ class ZigbeeHandler
 
   # Deviceに情報を書く（devUIDによる書き方が違う）
   # @todo zigbee module でセンサにデータを書く際に何か必要？仲里さんに頼む
+  # @todo どのセンサを使うかに応じて、write～Dataの部分のメソッドを作成する
   # @param [String] devUID DeviceのUID
   # @param [String] data   Deviceに書くデータ
   def writeData(devUID, data)
     case devUID
     when DEVICE_UIDS::ANOTHER
       puts "write data to other type of sensor"
-      return writeOtherData(devUID, data)
+      return write"Other"Data(devUID, data)
     end
   end
 

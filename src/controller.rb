@@ -13,14 +13,18 @@ end
 
 # Enum DOOR_STATUS ドアの状態を定義
 module DOOR_STATUS
-  CLOSING = 0
-  OPENING = 1
+  BOTH_DOOR_CLOSING = 0
+  SMALL_DOOR_OPENING = 1
+  BIG_DOOR_OPENING = 2
+  BOTH_DOOR_OPENING = 3
 end
 
 # Enum DOOR_OPERATION ドアの制御動作を定義
 module DOOR_OPERATION
-  CLOSE = 0
-  OPEN  = 1
+  BOTH_DOOR_CLOSE = 0
+  SMALL_DOOR_OPEN = 1 #人用のドアは閉める
+  BIG_DOOR_OPEN = 2   #動物用のドアは閉める
+  BOTH_DOOR_OPEN = 3
 end
 
 # ドアを制御するController
@@ -45,40 +49,69 @@ class DoorController < Controller
   def operateDoor(operation_)
 
     case operation_
-    when DOOR_OPERATION::CLOSE
-      if @doorStatus == DOOR_STATUS::CLOSING
-        puts "Door is already closing"
+    when DOOR_OPERATION::BOTH_DOOR_CLOSE
+      if @doorStatus == DOOR_STATUS::BOTH_DOOR_CLOSING
+        puts "Both door is already closing"
       else
-        puts "Close the door"
-        @doorStatus = DOOR_STATUS::CLOSING
-        self.closeDoor()
+        puts "Close the both door"
+        @doorStatus = DOOR_STATUS::BOTH_DOOR_CLOSING
+        self.closeBothDoor()
       end
 
-    when DOOR_OPERATION::OPEN
-      if @doorStatus == DOOR_STATUS::OPENING
+    when DOOR_OPERATION::SMALL_DOOR_OPEN
+      if @doorStatus == DOOR_STATUS::SMALL_DOOR_OPENING
+        puts "Small door is already open"
+      else
+        puts "Open the small door"
+        @doorStatus = DOOR_STATUS::SMALL_DOOR_OPENING
+        self.openSmallDoor()
+      end
+
+    when DOOR_OPERATION::BIG_DOOR_OPEN
+      if @doorStatus == DOOR_STATUS::BIG_DOOR_OPENING
         puts "Door is already open"
       else
         puts "Open the door"
-        @doorStatus = DOOR_STATUS::OPENING
-        self.openDoor()
+        @doorStatus = DOOR_STATUS::BIG_DOOR_OPENING
+        self.openBigDoor()
+      end
+
+    when DOOR_OPERATION::BOTH_DOOR_OPEN
+      if @doorStatus == DOOR_STATUS::BOTH_DOOR_OPENING
+        puts "Door is already open"
+      else
+        puts "Open the door"
+        @doorStatus = DOOR_STATUS::BOTH_DOOR_OPENING
+        self.openBothDoor()
       end
     end
 
   end
 
-  private :closeDoor
-  private :openDoor
+  private :closeBothDoor
+  private :openSmallDoor
+  private :openBigDoor
+  private :openBothDoor
 
-  # ドアを閉める
-  def closeDoor
-
-  end
-
-  # ドアを開ける
-  def openDoor
+  # 両方のドアを閉める
+  def closeBothDoor
 
   end
 
+  # 動物用のドアを開ける
+  def openSmallDoor
+
+  end
+
+  # 人用のドアを開ける
+  def openBigDoor
+
+  end
+
+  # 両方のドアを開ける
+  def openBothDoor
+
+  end
 end
 
 
@@ -122,7 +155,7 @@ class ZigbeeHandler
   end
 
   # Deviceの情報を取得（devUIDによる読み方が違う
-  # @todo Zigbee module でデータをセンサから何か必要？仲里さんに頼む
+  # @todo Zigbee module でセンサからデータを読む際に何か必要？仲里さんに頼む
   # @param  [String]      devUID Deviceの UID
   # @return [json/String] sensor data
   def readData(devUID)

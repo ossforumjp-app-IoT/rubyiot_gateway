@@ -77,7 +77,7 @@ puts "#{all_data_ary}"
   end
 
   # 温度を取得する
-  #   @return [Double] 温度を取得
+  #   @return [Float] 温度を取得
   def get_temp
     #return @outdata.join[4,6]
     return @outdata[3] #DEBUG

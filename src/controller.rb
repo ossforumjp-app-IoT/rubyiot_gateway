@@ -10,13 +10,14 @@ class Controller
 
 end
 
-# Enum DOOR_STATUS ドアの状態
+
+# Enum DOOR_STATUS ドアの状態を定義
 module DOOR_STATUS
   CLOSING = 0
   OPENING = 1
 end
 
-# Enum DOOR_OPERATION ドアの制御動作
+# Enum DOOR_OPERATION ドアの制御動作を定義
 module DOOR_OPERATION
   CLOSE = 0
   OPEN  = 1
@@ -24,44 +25,33 @@ end
 
 # ドアを制御するController
 # @author FAE
-# @attr_reader [ZigbeeHandler]  zigbeeHandler　          zigbeeモジュール
-# @attr_reader [DoorStatus]     doorStatus        ドアの現在状態　
+# @attr_reader [ZigbeeHandler]  zigbeeHandler          zigbeeモジュール
+# @attr_reader [DoorStatus]     doorStatus        ドアの現在状態
 class DoorController < Controller
 
   attr_reader :zigbeeHandler, :doorStatus
   # Controllerの初期化
-  def initialize()
-    @zigbeeHandler = ZigbeeHandler.new();
-    @status        = DOOR_STATUS::CLOSING
-  end
-
-  # ドアを閉める : Dummy method
-  def closeDoor()
-    operateDoor(DOOR_OPERATION::CLOSE)
-  end
-
-  # ドアを開ける : Dummy method
-  def openDoor()
-    operateDoor(DOOR_OPERATION::OPEN)
+  def initialize
+    @zigbeeHandler = ZigbeeHandler.new
+    @doorStatus    = DOOR_STATUS::CLOSING
   end
 
   # ドアの状態を取得 : Dummy method
-  def getStatus()
+  def getStatus
     return @doorStatus
   end
 
-  private :operateDoor
-
-  # ドアを制御する　： Dummy method
+  # ドアを制御する : Dummy method
   def operateDoor(operation_)
-    put case operation_
 
+    case operation_
     when DOOR_OPERATION::CLOSE
       if @doorStatus == DOOR_STATUS::CLOSING
         puts "Door is already closing"
       else
         puts "Close the door"
         @doorStatus = DOOR_STATUS::CLOSING
+        self.closeDoor()
       end
 
     when DOOR_OPERATION::OPEN
@@ -70,11 +60,27 @@ class DoorController < Controller
       else
         puts "Open the door"
         @doorStatus = DOOR_STATUS::OPENING
+        self.openDoor()
       end
-
     end
+
   end
+
+  private :closeDoor
+  private :openDoor
+
+  # ドアを閉める
+  def closeDoor
+
+  end
+
+  # ドアを開ける
+  def openDoor
+
+  end
+
 end
+
 
 # Enum ButtonStatus
 module BUTTON_STATUS
@@ -90,14 +96,14 @@ end
 class ButtonController < Controller
 
   attr_reader :zigbee, :btnStatus, :btnUID
-  def initialize()
+  def initialize
     @zigbeeHandler  = ZigbeeHandler.new();
     @btnStatus      = BUTTON_STATUS::UNPUSHED
     @btnUID         = "UID of the button"
   end
 
   # 無線経由でボタンの状態を取得
-  def getStatus()
+  def getStatus
     return @zigbeeHandler.readData(@btnUID)
   end
 
@@ -109,10 +115,10 @@ module DEVICE_UIDS
   ANOTHER = "other type of sensor"
 end
 
-# zigbee（無線）でDeviceの情オフを取得
+# zigbee（無線）でDeviceの情報を取得
 class ZigbeeHandler
   # init the zigbee module
-  def initialize()
+  def initialize
   end
 
   # Deviceの情報を取得（devUIDによる読み方が違う
@@ -120,7 +126,7 @@ class ZigbeeHandler
   # @param  [String]      devUID Deviceの UID
   # @return [json/String] sensor data
   def readData(devUID)
-    put case devUID
+    case devUID
     when DEVICE_UIDS::BUTTON
       puts "read data from button"
       return readButtonData(devUID)
@@ -136,7 +142,7 @@ class ZigbeeHandler
   # @param [String] devUID DeviceのUID
   # @param [String] data   Deviceに書くデータ
   def writeData(devUID, data)
-    put case devUID
+    case devUID
     when DEVICE_UIDS::ANOTHER
       puts "write data to other type of sensor"
       return writeOtherData(devUID, data)
@@ -174,11 +180,11 @@ class CameraController < Controller
   end
 
   # カメラの状態を取得
-  def getStatus()
+  def getStatus
     return CAMERA_STATUS::AVAILABLE;
   end
 
-  def captureImage()
+  def captureImage
     # @todo : capture image
     imgData = "This is test image data"
     writeImageToDisk(imgData)
@@ -196,6 +202,3 @@ class CameraController < Controller
   end
 
 end
-
-
-

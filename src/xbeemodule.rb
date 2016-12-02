@@ -84,27 +84,27 @@ puts "#{all_data_ary}"
   end
 
   # 異常状態を取得する
-  #   @return [String] センサの温度の状態を取得
+  #   @return [Numeric] センサの温度の状態を取得
   def get_fail_status
     #return @outdata.join[11,1]
     return @outdata[4] #DEBUG
   end
 
   # 装置状態を取得する
-  #   @return [String] センサの状態を取得
+  #   @return [Numeric] センサの状態を取得
   def get_device_status
     #return @outdata.join[0,1]
     return @outdata[1]	#DEBUG
   end
 
 	# Get mac addr of the device
-  #   @return [String] センサデバイスのMACアドレスを取得する
+  #   @return [Integer] センサデバイスのMACアドレスを取得する
 	def get_addr
 		return @outdata[0]
 		#return addr[0,1].unpack("H*")
 	end
 
-  # Get mac addr of the device
+  # センサからデータを受け取る
   #   @return [Integer]
   def recv_data_dummy()
 		@outdata = @f.gets.chomp
@@ -120,7 +120,7 @@ puts "#{all_data_ary}"
 =end
   end
 
-  # Get mac addr of the device
+  # センサからデータを受け取り、読み出す
   def recv_data()
     @sp.flush_input
     @count = 0

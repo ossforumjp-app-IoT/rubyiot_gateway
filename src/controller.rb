@@ -111,6 +111,23 @@ class DoorController < Controller
 
   end
 
+  # 以下のmethodはテスト用、動作が成功するかどうかを確認
+  # テスト終了後に、削除
+  private :closeBothDoor, :openSmallDoor, :openBigDoor, :openBothDoor
+
+  def closeBothDoor
+    @zigbeeHandler.writeData(@devUID,@doorDatParser.operationToRegsDat(DOOR_OPERATION::BOTH_DOOR_CLOSE))
+  end
+  def openSmallDoor
+    @zigbeeHandler.writeData(@devUID,@doorDatParser.operationToRegsDat(DOOR_OPERATION::ANIMAL_DOOR_OPEN))
+  end
+  def openBigDoor
+    @zigbeeHandler.writeData(@devUID,@doorDatParser.operationToRegsDat(DOOR_OPERATION::HUMAN_DOOR_OPEN))
+  end
+  def openBothDoor
+    @zigbeeHandler.writeData(@devUID,@doorDatParser.operationToRegsDat(DOOR_OPERATION::BOTH_DOOR_OPEN))
+  end
+
 end
 
 

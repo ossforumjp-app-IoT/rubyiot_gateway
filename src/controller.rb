@@ -1,7 +1,12 @@
+require './datParser'
+
 # An abstract class for all Controller
 # @author FAE
 # @abstract
+# @attr_reader [DEV_UIDS]       devUID           zigbeeセンサーのUID
 class Controller
+
+  attr_reader :devUID
 
   MESS = "SYSTEM ERROR: method missing"
   def initalize; raise MESS; end
@@ -36,35 +41,47 @@ end
 
 # ドアを制御するController
 # @author FAE
+# @attr_reader [DOOR_STATUS]    doorStatus        ドアの現在状況
+# @attr_reader [DoorDatParser]  doorDatParser     ドアに関するデータ解析
 # @attr_reader [ZigbeeHandler]  zigbeeHandler     zigbeeモジュール
-# @attr_reader [DoorStatus]     doorStatus        ドアの現在状態
 class DoorController < Controller
 
-  attr_reader :zigbeeHandler, :doorStatus
+  attr_reader :doorStatus, :doorDatParser, :zigbee
   # Controllerの初期化
-  def initialize
-    @zigbeeHandler = ZigbeeHandler.new
+  def initialize(devUID)
+    @devUID        = devUID
     @doorStatus    = DOOR_STATUS::BOTH_DOOR_CLOSING
+    @doorDatParser = DoorDatParser.new
+    @zigbeeHandler = ZigbeeHandler.new
   end
 
   # ドアの状態を取得 : Dummy method
   def getStatus
-    return @doorStatus
+
+    zigbeeRawBits = @zigbeeHandler.readData(@devUID)
+    return @doorDatParser.regsDatToStatus(zigbeeRawBits)
+
   end
 
   # ドアを制御する : Dummy method
-  # @todo operation_の結果はJSONで返ってくるので解析する必要がある。
-  #
-  def operateDoor(operation_)
+  # @param [String] operation サーバから取得した認識値（json 形）
+  def operateDoor(jsonData)
 
-    case operation_
+    operation = @doorDatParser.jsonToOperation(jsonData);
+
+    operationRawBits = @doorDatParser.operationToRegsDat(operation);
+
+    @zigbeeHandler.writeData(@devUID, operationRawBits)
+
+    # 動作後に状態を更新
+
+    case operation
     when DOOR_OPERATION::BOTH_DOOR_CLOSE
       if @doorStatus == DOOR_STATUS::BOTH_DOOR_CLOSING
         puts "Both door is already close"
       else
         puts "Close the both door"
         @doorStatus = DOOR_STATUS::BOTH_DOOR_CLOSING
-        self.closeBothDoor()
       end
 
     when DOOR_OPERATION::ANIMAL_DOOR_OPEN
@@ -73,7 +90,6 @@ class DoorController < Controller
       else
         puts "Open the animal door"
         @doorStatus = DOOR_STATUS::ANIMAL_DOOR_OPENING
-        self.openAnimalDoor()
       end
 
     when DOOR_OPERATION::HUMAN_DOOR_OPEN
@@ -82,7 +98,6 @@ class DoorController < Controller
       else
         puts "Open the door"
         @doorStatus = DOOR_STATUS::HUMAN_DOOR_OPENING
-        self.openHumanDoor()
       end
 
     when DOOR_OPERATION::BOTH_DOOR_OPEN
@@ -91,36 +106,11 @@ class DoorController < Controller
       else
         puts "Open the door"
         @doorStatus = DOOR_STATUS::BOTH_DOOR_OPENING
-        self.openBothDoor()
       end
     end
 
   end
 
-  private :closeBothDoor
-  private :openAnimalDoor
-  private :openHumanDoor
-  private :openBothDoor
-
-  # 両方のドアを閉める
-  def closeBothDoor
-
-  end
-
-  # 動物用のドアを開ける
-  def openAnimalDoor
-
-  end
-
-  # 人用のドアを開ける
-  def openHumanDoor
-
-  end
-
-  # 両方のドアを開ける
-  def openBothDoor
-
-  end
 end
 
 
@@ -132,21 +122,22 @@ end
 
 # ボータンの状況を監視するController
 # @author FAE
-# @attr_reader [ZigbeeHandler]    zigbeeHanlder zigbee Unit
 # @attr_reader [BUTTON_STATUS]    btnStatus     ボタンの現在状況
-# @attr_reader [String]           btnUID        ボタンのUID（通信するため）
+# @attr_reader [BtnDatParser]     btnDatParser  ボタンに関するデータを解析
+# @attr_reader [ZigbeeHandler]    zigbeeHanlder zigbee Unit
 class ButtonController < Controller
 
-  attr_reader :zigbee, :btnStatus, :btnUID
+  attr_reader :btnStatus, :btnDatParser, :zigbee
   def initialize
-    @zigbeeHandler  = ZigbeeHandler.new();
     @btnStatus      = BUTTON_STATUS::UNPUSHED
-    @btnUID         = "UID of the button"
+    @btnDatParser   = BtnDatParser.new
+    @zigbee         = ZigbeeHandler.new();
   end
 
-  # 無線経由でボタンの状態を取得
+  # zigbeeでボタンの状態を取得
   def getStatus
-    return @zigbeeHandler.readData(@btnUID)
+    rawBits =  @zigbeeHandler.readData(@btnUID)
+    return @btnDatParser.regsDatToStatus(rawBits)
   end
 
 end
@@ -187,18 +178,6 @@ class ZigbeeHandler
   end
 
   private :readButtonData, :readOtherData, :writeOtherData
-
-  def readButtonData(devUID)
-    return "Status of Button is read from #{devUID}"
-  end
-
-  def readOtherData(devUID)
-    return "Data　of other is read from #{devUID} "
-  end
-
-  def writeOtherData(devUID, data)
-    return "#{data} is wrote into other type of sensor #{devUID}"
-  end
 
 end
 

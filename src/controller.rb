@@ -1,5 +1,3 @@
-
-# @todo JSONのparserを追加する
 # An abstract class for all Controller
 # @author FAE
 # @abstract
@@ -10,6 +8,13 @@ class Controller
 
   def getStatus; raise MESS; end
 
+end
+
+# Enum DeviceのUID
+module DEVICE_UIDS
+  BUTTON  = "BUTTON UID"
+  DOOR    = "DOOR UID"
+  ANOTHER = "OTHER TYPE OF SENSOR's UID"
 end
 
 # @todo ドア毎のIDとドアの状態を分けたほうが良いか
@@ -146,12 +151,6 @@ class ButtonController < Controller
 
 end
 
-# Enum DeviceのUID
-module DEVICE_UIDS
-  BUTTON = "button"
-  ANOTHER = "other type of sensor"
-end
-
 # zigbee（無線）でDeviceの情報を取得
 class ZigbeeHandler
   # init the zigbee module
@@ -183,7 +182,7 @@ class ZigbeeHandler
     case devUID
     when DEVICE_UIDS::ANOTHER
       puts "write data to other type of sensor"
-      return write"Other"Data(devUID, data)
+      return writeOtherData(devUID, data)
     end
   end
 

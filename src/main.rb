@@ -1,5 +1,6 @@
 require './controller'
-require './datahandler'
+require './cloudhandler'
+require './controllerFactory'
 
 # Main処理のパラメータ
 module MAIN_PARAMETER
@@ -11,18 +12,18 @@ end
 # @param attr_reader [ButtonController] btnCtl      ボタンの状態を取得Controller
 # @param attr_reader [CameraController] cameraCtl   カメラを制御するController
 # @param attr_reader [DoorController] doorCtl       ドア制御するController
-# @param attr_reader [Datahandler] dataHandler      Databaseにデータ送信、認識結果を取得Controller
+# @param attr_reader [CloudHandler] cloudHandler      Databaseにデータ送信、認識結果を取得Controller
 class Main
 
-  attr_reader :btnCtl, :cameraCtl, :doorCtl, :dataHandler
+  attr_reader :btnCtl, :cameraCtl, :doorCtl, :cloudHandler
   attr_reader :btnThread
 
   # Controllerを初期化
   def initialize()
-    @btnCtl     = ButtonController.new
+    @btnCtl     = ControllerFactory.crtController(DEVICE_UIDS::BUTTON)
     @cameraCtl  = CameraController.new
-    @doorCtl    = DoorController.new
-    @dataHandler= DataHandler.new
+    @doorCtl    = ControllerFactory.crtController(DEVICE_UIDS::DOOR)
+    @cloudHandler= CloudHandler.new
     @btnThread  = Thread.new {}
   end
 
@@ -81,7 +82,7 @@ class Main
   # @param [String] filePath 画像のpath
   # @return [String/json] 認識結果 {"devUID":{"operation_id":"yyy", "value":"操作値"}}
   def recogImg(filePath)
-    recogResult = @dataHandler.upload(filePath)
+    recogResult = @cloudHandler.upload(filePath)
     return recogResult
   end
 

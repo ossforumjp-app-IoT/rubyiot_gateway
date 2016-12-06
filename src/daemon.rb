@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 require_relative 'core'
-
+#
 # RaspberyPi上で動作するデーモンオブジェクト
 # @author FAE
 

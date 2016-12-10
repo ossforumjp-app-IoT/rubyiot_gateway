@@ -19,6 +19,21 @@ require 'yaml'
 # 0,A,ZXXX.0,YKKK.0
 # A:FAN制御  0:停止 / 1:回転
 
+
+class ZigbeeHandler
+  
+  def initialize()
+
+  end
+ 
+  def readRegs()
+
+  end 
+
+  def writeRegs()
+
+  end
+
 class ZigBeeReceiveFrame
   @@xbee = YAML.load_file './xbee.yml'
 

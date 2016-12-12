@@ -2,20 +2,9 @@
 
 require "thread"
 
-class Hoge
-  
-  def initialize
-    @q = Queue.new
-    @q.push(:a)
-    @q.push(:b)
-    @q.push(:c)
-  end
 
-  def get
-    @q.pop
-  end
 
-end
-
-h = Hoge.new
-p h.get
+str = "abcd"
+len=3
+p str.slice!(0,len)
+p str

@@ -1,8 +1,14 @@
 
 require "serialport"
 require "yaml"
+require_relative "serialdummy"
 
+# Zigbeeを取り扱うクラスのパラメータ
+module ZIGBEE_PARAM
+	SENSOR_RECV_LOOP = 1.0
+end
 
+# Zigbeeのフレームを解析するクラス
 class ZigbeeFrameParser
 
   def initialize
@@ -15,16 +21,18 @@ class ZigbeeFrameParser
 
 end
 
-class ZigbeeFrameReceiver
+# Zigbeeを取り扱うクラス
+class Zigbee
   @@xbee = YAML.load_file "./xbee.yml"
 
   def initialize
-    @zigbee_parser = ZigbeeFrameParser.new
+
+		@zigbee_frame_parser = ZigbeeFrameParser.new
 
     spconf = @@xbee["serialport"]
     begin
     if spconf["device"] == "dummy"
-      @sp = SerialDummyFile.new
+      @sp = SerialDummyPort.new
     else
       @sp = SerialPort.new(spconf["device"], spconf["boudrate"],
                            spconf["databits"], spconf["stopbits"], 
@@ -38,6 +46,12 @@ class ZigbeeFrameReceiver
     end
   end
 
+	def 
+
+
+	end
+
+
   def recv
     @sp.flush_input
     count = 0
@@ -45,6 +59,7 @@ class ZigbeeFrameReceiver
     raw_data = Array.new
 
     loop do
+			sleep ZIGBEE_PARAM::SENSOR_RECV_LOOP
       # 文字を1byte読み込み
       raw_data[count] = @sp.read(1)
       if count == 0 then
@@ -94,15 +109,18 @@ class ZigbeeFrameReceiver
     return data
 
   end
+
+	def send(_data)
+				
+
+
+		@sp.write(data)
+	end
  
 end
 
-
 # DEBUG
-
 if $0 == __FILE__ then
-  zfr = ZigbeeFrameReceiver.new
-
+  z = Zigbee.new
 end
-
 

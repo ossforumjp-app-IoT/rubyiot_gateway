@@ -1,3 +1,4 @@
+#!/usr/bin/ruby -Ku
 
 require "serialport"
 require "yaml"
@@ -34,7 +35,7 @@ class ZigbeeFrameCreater
     end
 
     def check_sum(*args)
-      return sprintf("%02x", ~([args.inject(:+)].pack("H*")).sum(8) & 0xff)
+      return sprintf("%02x", (~([args.inject(:+)].pack("H*").sum(8)) & 0xff))
     end
 
     data = ("0" + "," +
@@ -45,8 +46,8 @@ class ZigbeeFrameCreater
             sprintf("0%2.1f",min_temp.abs)).unpack("H*").join
     p data
     raw_data = @stcode + @len + @cmd + 
-               @frmid + addr + @local +
-               @option + data +
+               @frmid + addr + @local + 
+               @option + data + 
                check_sum(@cmd, @frmid, addr, @local, @option, data)
     p raw_data
     p [raw_data].pack("H*")
@@ -206,7 +207,6 @@ class Zigbee
   end
 
   def send(data)
-    		
     @sp.write(data)
   end
  

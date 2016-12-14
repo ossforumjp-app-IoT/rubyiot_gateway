@@ -5,30 +5,122 @@ require_relative "serialdummy"
 
 # Zigbeeを取り扱うクラスのパラメータ
 module ZIGBEE_PARAM
-	SENSOR_RECV_LOOP = 0.1
+  SENSOR_RECV_LOOP = 0.1
 end
+
+
+class ZigbeeFrameCreater
+
+  def initialize(xbee)
+    @cmd = xbee["cmd"].tr(" ","")
+    @frmid = xbee["frmid"].tr(" ","")
+    @local = xbee["localdst"].tr(" ","")
+    @option = xbee["option"].tr(" ","")
+    @stcode = xbee["stcode"].tr(" ","")
+    @len = xbee["len"].tr(" ","")
+  end
+
+  # センサに送信するZigbeeフレームを作成する
+  # [Reserved(0)],[0/1],[+/-][XXX.X],[+/-][XXX.X]
+  # @param [String] data 上記フォーマットのフレーム
+  # @param [String] raw_data Zigbeeフレーム
+  # @param [Intger] cmd FAN制御コマンド
+  # @param [Float] max_temp 高温異常温度値
+  # @param [Float] min_temp 低温異常温度値
+  # @param [String] addr 送信先のZigbeeモジュールのMAC Address 
+  def create(cmd, max_temp, min_temp, addr)
+    def sign(num)
+      return (num > 0) ? "+" : "-"  
+    end
+
+    def check_sum(*args)
+      return sprintf("%02x", [args.inject(:+)].pack("H*").sum(8) & 0xff)
+    end
+
+    data = ("0" + "," +
+            "#{cmd}" + "," +
+            sign(max_temp) + 
+            sprintf("0%2.1f",max_temp.abs) + "," +
+            sign(min_temp) +
+            sprintf("0%2.1f",min_temp.abs)).unpack("H*").join
+    p data
+    raw_data = @stcode + @len + @cmd + 
+               @frmid + addr + @local +
+               @option + data +
+               check_sum(@cmd, @frmid, addr, @local, @option, data)
+    p raw_data
+    return [raw_data].pack("H*")
+  end 
+
+end
+
 
 # Zigbeeのフレームを解析するクラス
 class ZigbeeFrameParser
 
   def initialize
-    
+    @API_mode = 2
   end
 
-  def get_fan_status()
-    return 
+  # Raw dataをパースするメソッド
+  # @param [Hash] data パースしたデータを格納する変数
+  def parse(raw_data)
+    data = {}
+    # MAC Addressの取得
+    data["addr"] = get_addr(raw_data)
+    # データの取り出し
+    data["fan"] = get_fan_status(raw_data)
+    data["temp"] = get_temp(raw_data)
+    data["fail"] = get_fail_status(raw_data)
+    data["status"] = get_device_status(raw_data)
+  
+    return data
+  end
+
+  # MAC Addressの取り出し
+  # "13"を追加する理由はZigbeeのAPIモードが
+  # 2になっておりESC処理で落ちているため
+  # unpack("H*")はStringをASCII文字列の配列に変換するメソッド
+  # @param [Array] data Zigbeeフレームのbyte列
+  # @return [String] addr ZigbeeのMAC Address
+  def get_addr(data)
+    addr = (data.join)[4,1].unpack("H*") + [13] +
+          (data.join)[5,6].unpack("H*")
+    return addr.join
+  end
+
+  # FAN状態の取得
+  # @return [String] FANの状態
+  def get_fan_status(data)
+    return data[14,1].join
+  end
+
+  # 温度の取得
+  # @return [String] 温度
+  def get_temp(data)
+    return (data.join)[18,6]
+  end
+
+  # 異常状態の取得
+  # @return [String] 異常状態
+  def get_fail_status(data)
+    return data[16,1].join
+  end
+
+  # デバイス状態の取得
+  # @return [String] デバイス状態
+  def get_device_status(data)
+    return data[25,1].join
   end
 
 end
+
 
 # Zigbeeを取り扱うクラス
 class Zigbee
   @@xbee = YAML.load_file "./xbee.yml"
 
   def initialize
-
-		@zigbee_frame_parser = ZigbeeFrameParser.new
-
     spconf = @@xbee["serialport"]
     begin
     if spconf["device"] == "dummy"
@@ -44,8 +136,24 @@ class Zigbee
       p e.message
       p '---------------------------------'
     end
+
+    @zigbee_frame_parser = ZigbeeFrameParser.new
+    @zigbee_frame_creater = ZigbeeFrameCreater.new(@@xbee)
   end
 
+  def parse(raw_data)
+    return @zigbee_frame_parser.parse(raw_data)
+  end
+
+  def create(cmd, max_temp, min_temp, addr)
+    return @zigbee_frame_creater.create(cmd, max_temp, min_temp, addr)
+  end
+
+  # センサのZigbeeから送られてくる1フレーム分を受信するメソッド
+  # @param [Array] data センサから送られてくるデータ列
+  # @param [Array] mac ZigbeeモジュールのMAC Address
+  # @return [Array] (mac + data)
+  # @comment 誰かもう少しキレイにして
   def recv
     @sp.flush_input
     count = 0
@@ -53,7 +161,6 @@ class Zigbee
     raw_data = Array.new
 
     loop do
-			sleep ZIGBEE_PARAM::SENSOR_RECV_LOOP
       # 文字を1byte読み込み
       raw_data[count] = @sp.read(1)
       if count == 0 then
@@ -93,33 +200,21 @@ class Zigbee
     
     end # loop do
 
-    data = []
-    tmp = nil
-    tmp = raw_data.join[4,1].unpack("H*").pop + "13" +
-           raw_data.join[5,6].unpack("H*").pop
-    data << tmp
-    data = data +
-           raw_data[14,1] +
-           raw_data[16,1] +
-           raw_data.join[18,6].split(" ") +
-           raw_data[25,1]
-
-    return data
+    return raw_data 
 
   end
 
-	def send(_data)
-				
-
-
-		@sp.write(data)
-	end
+  def send(_data)
+    		
+    @sp.write(data)
+  end
  
 end
 
 # DEBUG
 if $0 == __FILE__ then
   z = Zigbee.new
-  p z.recv()
+  p z.parse(z.recv())
+  p z.create(1, 30.0, 11.0, z.parse(z.recv())["addr"])
 end
 

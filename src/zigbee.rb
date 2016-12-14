@@ -50,7 +50,6 @@ class ZigbeeFrameCreater
                @option + data + 
                check_sum(@cmd, @frmid, addr, @local, @option, data)
     p raw_data
-    p [raw_data].pack("H*")
     return [raw_data].pack("H*")
   end 
 

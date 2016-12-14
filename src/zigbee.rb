@@ -34,7 +34,7 @@ class ZigbeeFrameCreater
     end
 
     def check_sum(*args)
-      return sprintf("%02x", [args.inject(:+)].pack("H*").sum(8) & 0xff)
+      return sprintf("%02x", ~([args.inject(:+)].pack("H*")).sum(8) & 0xff)
     end
 
     data = ("0" + "," +
@@ -49,6 +49,7 @@ class ZigbeeFrameCreater
                @option + data +
                check_sum(@cmd, @frmid, addr, @local, @option, data)
     p raw_data
+    p [raw_data].pack("H*")
     return [raw_data].pack("H*")
   end 
 
@@ -204,7 +205,7 @@ class Zigbee
 
   end
 
-  def send(_data)
+  def send(data)
     		
     @sp.write(data)
   end
@@ -215,6 +216,6 @@ end
 if $0 == __FILE__ then
   z = Zigbee.new
   p z.parse(z.recv())
-  p z.create(1, 30.0, 11.0, z.parse(z.recv())["addr"])
+  z.send(z.create(1, 30.0, 11.0, z.parse(z.recv())["addr"]))
 end
 

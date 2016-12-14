@@ -5,7 +5,7 @@ require_relative "serialdummy"
 
 # Zigbeeを取り扱うクラスのパラメータ
 module ZIGBEE_PARAM
-	SENSOR_RECV_LOOP = 1.0
+	SENSOR_RECV_LOOP = 0.1
 end
 
 # Zigbeeのフレームを解析するクラス
@@ -45,12 +45,6 @@ class Zigbee
       p '---------------------------------'
     end
   end
-
-	def 
-
-
-	end
-
 
   def recv
     @sp.flush_input
@@ -99,8 +93,12 @@ class Zigbee
     
     end # loop do
 
-    data = raw_data.join[4,1].unpack("H*").pop + "13" +
-           raw_data.join[5,6].unpack("H*").pop +
+    data = []
+    tmp = nil
+    tmp = raw_data.join[4,1].unpack("H*").pop + "13" +
+           raw_data.join[5,6].unpack("H*").pop
+    data << tmp
+    data = data +
            raw_data[14,1] +
            raw_data[16,1] +
            raw_data.join[18,6].split(" ") +
@@ -122,5 +120,6 @@ end
 # DEBUG
 if $0 == __FILE__ then
   z = Zigbee.new
+  p z.recv()
 end
 

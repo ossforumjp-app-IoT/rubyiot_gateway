@@ -1,5 +1,7 @@
+#!/usr/bin/ruby -Ku
 
-require "zigbee"
+require_relative "zigbee"
+require_relative "cloud_db_api"
 require "data_handler"
 
 # Main処理のパラメータ

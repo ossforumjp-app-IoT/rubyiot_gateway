@@ -8,24 +8,28 @@ require 'active_record'
 require 'httpclient'
 require 'digest/sha2'
 require 'pry'
+require 'json'
 
 
 # クラウド上のDatabaseアクセスクラス
-class CloudDataBaseAPI
+class CloudDatabaseAPI
   # クラウド上のＤＢアクセスクラスの初期化
   #   @param [String] sever server_url
   #   @param [String] port  serverのポート番号
-  def initialize()
-    SERVER = "http://rubyiot.rcloud.jp"
-    SERVER.freeze
+  def initialize
+    server = "http://rubyiot.rcloud.jp"
     @mount_point = "http://rubyiot.rcloud.jp"
     @PORT = 80
     @PORT.freeze
-    @USER = "raspberrypi"
-    @PASS = "raspberrypi"
+    @USER = "pi"
+    @PASS = "raspberry"
 
-    @http = HTTPClient.new
-    @http.set_auth(SERVER, @USER, Digest::SHA256.hexdigest(@PASS))
+    proxy_host = "http://rep.proxy.nic.fujitsu.com:8080"
+    proxy_user = "proxy4unix"
+    proxy_passwd = "3170195361"
+    @http = HTTPClient.new(proxy_host)
+    @http.set_proxy_auth(proxy_user, proxy_passwd)
+    @http.set_auth(server, @USER, Digest::SHA256.hexdigest(@PASS))
 
   end
 
@@ -184,88 +188,6 @@ proxy_passwd =  passwd
     post_hash = { controller_id => operation }
     post_data = post_hash.to_json
     res = @http.post(@mount_point + "/api/operation", post_data)
-  end
-
-end
-
-# センサクラス
-# XbeeでFM3と接続して温度照度を取得する仕事
-# @attr [ZigBeeReceiveFrame] zigrecv ZigBeeReceiveFrame instance
-class Sensor
-  # センシング情報を取ってくるメソッド
-  def initialize
-    @zigrecv = ZigBeeReceiveFrame.new
-  end
-
-  # Serial経由でXbeeのデータ取得
-  def recvdata
-    @zigrecv.recv_data
-  end
-
-  # Serial経由でXbeeにデータを送る
-  #   @param [Numeric] limit_max    上限値
-  #   @param [Numeric] limit_min    下限値
-  #   @param [Numeric] sensorctl    ????
-  #   @param [Numeric] addr         Xbeeのmac address
-  #   @todo データ送るかデータを設定することか？
-  def senddata(limit_max,limit_min,sensorctl,addr)
-
-    min_expr = '+'
-    max_expr = '+'
-
-    if limit_min < 0 then
-      limit_min = limit_min * -1
-      min_expr = '-'
-    end
-
-    tmpminstr = limit_min.to_s
-    tmp_min_x = tmpminstr.split(".")
-
-    if tmp_min_x.length == 1 then
-      tmp_min_x.push("0")
-    end
-
-    if limit_max < 0 then
-      limit_max = limit_max * -1
-      max_expr = '-'
-    end
-
-    tmpmaxstr = limit_max.to_s
-    tmp_max_x = tmpmaxstr.split(".")
-    if tmp_max_x.length == 1 then
-      tmp_max_x.push("0")
-    end
-
-    data = sprintf("%d,%d,%c%03d.%s,%c%03d.%s", 0, sensorctl, max_expr, limit_max, tmp_max_x[1], min_expr, limit_min, tmp_min_x[1])
-
-    puts "data = #{data} #{addr}"
-
-    @zigrecv.send_data(data,addr)
-  end
-
-  # 装置状態取得
-  def get_device_status
-    return @zigrecv.get_device_status
-  end
-
-  # fan状態取得
-  def get_fan_status
-    return @zigrecv.get_fan_status
-  end
-
-  # 温度情報取得
-  def get_temp
-    return @zigrecv.get_temp
-  end
-
-  # 異常状態取得
-  def get_fail_status
-    return @zigrecv.get_fail_status
-  end
-
-  # get device mac
-  def get_addr
-    return @zigrecv.get_addr
   end
 
 end

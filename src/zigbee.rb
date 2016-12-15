@@ -25,7 +25,7 @@ class ZigbeeFrameCreater
   # [Reserved(0)],[0/1],[+/-][XXX.X],[+/-][XXX.X]
   # @param [String] data 上記フォーマットのフレーム
   # @param [String] raw_data Zigbeeフレーム
-  # @param [Intger] cmd FAN制御コマンド
+  # @param [Intger] cmd FAN/DOORの制御コマンド
   # @param [Float] max_temp 高温異常温度値
   # @param [Float] min_temp 低温異常温度値
   # @param [String] addr 送信先のZigbeeモジュールのMAC Address 

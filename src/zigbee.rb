@@ -90,6 +90,12 @@ class ZigbeeFrameParser
     return addr.join
   end
 
+  # デバイス状態の取得
+  # @return [String] デバイス状態
+  def get_device_status(data)
+    return data[14,1].join
+  end
+
   # FAN状態の取得
   # @return [String] FANの状態
   def get_fan_status(data)
@@ -105,12 +111,6 @@ class ZigbeeFrameParser
   # 異常状態の取得
   # @return [String] 異常状態
   def get_fail_status(data)
-    return data[16,1].join
-  end
-
-  # デバイス状態の取得
-  # @return [String] デバイス状態
-  def get_device_status(data)
     return data[25,1].join
   end
 
@@ -214,7 +214,7 @@ end
 # DEBUG
 if $0 == __FILE__ then
   z = Zigbee.new
-  p z.parse(z.recv())
+  #p z.parse(z.recv()) この行を入れると相手側に制御コマンドが届かない
   z.send(z.create(1, 30.0, 11.0, z.parse(z.recv())["addr"]))
 end
 

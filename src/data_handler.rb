@@ -66,7 +66,6 @@ class DataHandler
 end
 
 
-
 # Debug
 if $0 == __FILE__ then
 

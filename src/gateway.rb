@@ -37,29 +37,38 @@ class Gateway
       data = @z.recv()
       @data_hdr.store_sensing_data(data)
 
+      @data_hdr.notify_alert(data) unless data["fail"].to_i.zero?
 
       if @file_hdr.search() == true then
          @data_hdr.upload(@file_hdr.filepath)
 
+         # クラウドにドアの制御コマンドをもらいにいく処理
+         # どこに実装するのが正しい？
          operationThread = Thread.new {
             while do 
               sleep MAIN_PARAMETER::
               @file_hdr.get_door_cmd()
+              @z.send(ここにはセンサクラスで作成したデータのみを渡すべき？)
             end
          }
       end
 
-      @z.send(data????)
+      @data_hdr.get_monitoring_range()
+
+      @data_hdr.get_operation()      
+      @z.send(ここにはセンサクラスで作成したデータのみを渡すべき？)
 
       sleep MAIN_PARAMETER::MAIN_LOOP
     end
     rescue Interrupt
       p "Program have finished by Ctrl+c"
     end
+    @data_hdr.logout()
 
   end
 
   def daemonlize
+    クラウドに送信する各メソッドはスレッド化するべき?
 =begin
     @zfr = Thread.new {
       zfr = ZigbeeFrameReceiver.new

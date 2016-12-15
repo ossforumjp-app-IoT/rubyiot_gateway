@@ -140,6 +140,7 @@ class Zigbee
 
     @zigbee_frame_parser = ZigbeeFrameParser.new
     @zigbee_frame_creater = ZigbeeFrameCreater.new(@@xbee)
+    #@addr = nil
   end
 
   def parse(raw_data)

@@ -70,9 +70,8 @@ proxy_passwd =  passwd
 
   # センサーの測定データを登録
   #   @param [Integer]  sensor_id     センサーID
-  #   @param [String]   timestamp     タイムスタンプ
   #   @param [Integer]  sensing_data  センシングデータ
-  def store_sensing_data(sensor_id, timestamp, sensing_data)
+  def store_sensing_data(sensor_id, sensing_data)
     debug("storeSensingData call")
     query_hash = {sensor_id => sensing_data.to_s}
     post_data = query_hash.to_json
@@ -188,6 +187,27 @@ proxy_passwd =  passwd
     post_hash = { controller_id => operation }
     post_data = post_hash.to_json
     res = @http.post(@mount_point + "/api/operation", post_data)
+  end
+
+  # クラウドにファイルをアップロードするメソッド
+  # @param [String] filepath ファイルのパス
+  # TODO メソッド名とboundaryは仮決め
+  def upload(filepath)
+    boundary = "-------------------------------"
+    open(filepath) do |file|
+      post_data = {"XXX"=>file}
+      @http.post_content(@mount_point + "/api/XXX", post_data,
+                         "content-type" => "multipart/form-data, 
+                         boundary=#{boundary}")
+    end
+
+  end
+
+  # ドアの開錠コマンドを取得
+  # TODO メソッド名は仮決め
+  def get_door_cmd
+    res = @http.get(@mount_point + "api/XXX")
+    return JSON.parse(res.body)
   end
 
 end

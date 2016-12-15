@@ -23,6 +23,7 @@ class ZigbeeFrameCreater
 
   # センサに送信するZigbeeフレームを作成する
   # [Reserved(0)],[0/1],[+/-][XXX.X],[+/-][XXX.X]
+  # dataパラメータは本来ここでは作らないべき?
   # @param [String] data 上記フォーマットのフレーム
   # @param [String] raw_data Zigbeeフレーム
   # @param [Intger] cmd FAN/DOORの制御コマンド
@@ -44,12 +45,10 @@ class ZigbeeFrameCreater
             sprintf("0%2.1f",max_temp.abs) + "," +
             sign(min_temp) +
             sprintf("0%2.1f",min_temp.abs)).unpack("H*").join
-    p data
     raw_data = @stcode + @len + @cmd + 
                @frmid + addr + @local + 
                @option + data + 
                check_sum(@cmd, @frmid, addr, @local, @option, data)
-    p raw_data
     return [raw_data].pack("H*")
   end 
 
@@ -64,6 +63,7 @@ class ZigbeeFrameParser
   end
 
   # Raw dataをパースするメソッド
+  # 本来はこのメソッドはSensorというクラスに存在するべき？
   # @param [Hash] data パースしたデータを格納する変数
   def parse(raw_data)
     data = {}
@@ -201,12 +201,13 @@ class Zigbee
     
     end # loop do
 
-    return raw_data 
+    return parse(raw_data)
 
   end
 
-  def send(data)
-    @sp.write(data)
+  def send(cmd, max, min, addr)
+    frame = create(cmd, max, min, addr)
+    @sp.write(frame)
   end
  
 end
@@ -215,6 +216,7 @@ end
 if $0 == __FILE__ then
   z = Zigbee.new
   #p z.parse(z.recv()) この行を入れると相手側に制御コマンドが届かない
-  z.send(z.create(1, 30.0, 11.0, z.parse(z.recv())["addr"]))
+  p z.recv()["addr"]
+  z.send(1, 30.0, 11.0, z.recv()["addr"])
 end
 

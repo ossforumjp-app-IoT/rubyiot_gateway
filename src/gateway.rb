@@ -4,6 +4,7 @@ require_relative "cloud_db_api"
 require_relative "image_file"
 require_relative "data_handler"
 require_relative "sensor"
+require "thread"
 
 # Main処理のパラメータ
 module MAIN_PARAMETER
@@ -60,7 +61,11 @@ class Gateway
 
       @api_worker[STORE_SENSING_DATA].call(data)
 
-      @api_worker[NOTIFY_ALERT].call(data) unless data["fail"].to_i.zero?
+      @api_worker[NOTIFY_ALERT].call(
+        data, 
+        @sensor.min, 
+        @sensor.max
+      ) unless data["fail"].to_i.zero?
 
       # 画像ファイル確認のポーリング
       # ここはまとめてハンドラにすべき?
@@ -70,11 +75,11 @@ class Gateway
          @api_worker[GET_DOOR_CMD].call(data)
       end
 
-      @data_hdr.get_monitoring_range(data)
+      @api_worker[GET_MONITORING_RANGE].call(data)     
 
 　　　# 制御コマンド取得のポーリング
       # ここはまとめてハンドラにすべき?
-      @data_hdr.get_operation()
+      @api_worker[GET_OPERATION].call()
 
       # Zigbeeでデータを送信
       l = @data_hdr.data.length
@@ -83,6 +88,7 @@ class Gateway
         result = @z.send(q[2], @sensor.min, @sensor.max, q[0])
         @api_worker[SET_OPERATION_STATUS].call(q[1], result)
       end
+
       sleep MAIN_PARAMETER::MAIN_LOOP
 
     end
@@ -94,16 +100,15 @@ class Gateway
 
   end
 
-  # クラウドAPIを実行する一部のメソッドをスレッド化して
-  # 手続きで呼び出せるようにするメソッド
+  # クラウドAPIを実行する一部のメソッドをスレッド化して呼び出す処理
   def daemonlize
 
     @api_worker[STORE_SENSING_DATA] = lambda {|data| 
       Thread.new {@data_hdr.store_sensing_data(data)}
     }
 
-    @api_worker[NOTIFY_ALERT] = lambda {|data|
-      Thread.new {@data_hdr.notify_alert(data)}
+    @api_worker[NOTIFY_ALERT] = lambda {|data, min, max|
+      Thread.new {@data_hdr.notify_alert(data, min, max)}
     }
 
     # TODO get_door_cmdで開錠コマンドを取得しAPIを続けるかどうかの判定
@@ -117,17 +122,16 @@ class Gateway
           ope_id, cmd = @data_hdr.get_door_cmd(XXX)
           sleep MAIN_PARAMETER::API_INTERVAL
         end while cmd == "XXX"
-        @data_hdr.cmd.push((data["addr"], ope_id, cmd))
+        @data_hdr.cmd.push([data["addr"], ope_id, cmd])
       }
     }
     
     @api_worker[GET_OPERATION] = lambda {
         Thread.new {
           ope_id, cmd = @data_hdr.get_operation()
-          @data_hdr.cmd.push((data["addr"], ope_id, cmd))
+          @data_hdr.cmd.push([data["addr"], ope_id, cmd])
         }
     }
-
 
     @api_worker[GET_MONITORING_RANGE] = lambda {|data|
       Thread.new {

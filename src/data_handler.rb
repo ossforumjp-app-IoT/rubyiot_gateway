@@ -21,8 +21,6 @@ class DataHandler
 
     @cmd = Queue.new
     @id_h = Hash.new
-    @min = 30.0
-    @max = 10.0
   end
   
   attr_accessor :id_h, :data
@@ -58,9 +56,9 @@ class DataHandler
     res = @cloud.sotre_sensing_data(id_h["#{addr}"], data["temp"])
   end
 
-  def notify_alert(data)
+  def notify_alert(data, min, max)
     addr = data["addr"]
-    @cloud.notify_alert(id_h["#{addr}"], data["temp"], @min, @max)
+    @cloud.notify_alert(id_h["#{addr}"], data["temp"], min, max)
   end
 
   def get_monitoring_range(data)

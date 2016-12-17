@@ -3,11 +3,12 @@
 
 class Sensor
 
-  def initialize(max, min)
-    @max = max
+  def initialize(min, max)
     @min = min
+    @max = max
+    @addr = nil
   end
 
-  attr_accessor :max, :min
+  attr_accessor :max, :min, :addr
 
 end

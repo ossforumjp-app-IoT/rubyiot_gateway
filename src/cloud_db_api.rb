@@ -4,6 +4,7 @@ require 'rubygems'
 require 'uri'
 require 'net/http'
 require 'active_record'
+require 'active_support/core_ext'
 
 require 'httpclient'
 require 'digest/sha2'
@@ -191,7 +192,8 @@ proxy_passwd =  passwd
 
   # クラウドにファイルをアップロードするメソッド
   # @param [String] filepath ファイルのパス
-  # TODO メソッド名とboundaryは仮決め
+  # TODO メソッド名とboundaryは仮決め。
+  # 動作未確認
   def upload(filepath)
     boundary = "-------------------------------"
     open(filepath) do |file|
@@ -205,6 +207,7 @@ proxy_passwd =  passwd
 
   # ドアの開錠コマンドを取得
   # TODO メソッド名は仮決め
+  # 動作未確認
   def get_door_cmd
     res = @http.get(@mount_point + "api/XXX")
     return JSON.parse(res.body)

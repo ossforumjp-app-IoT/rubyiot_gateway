@@ -9,7 +9,7 @@ module ZIGBEE_PARAM
   SENSOR_RECV_LOOP = 0.1
 end
 
-
+ # Zigbeeのフレームを作成するクラス
 class ZigbeeFrameCreater
 
   def initialize(xbee)
@@ -30,7 +30,7 @@ class ZigbeeFrameCreater
   # @param [Float] max_temp 高温異常温度値
   # @param [Float] min_temp 低温異常温度値
   # @param [String] addr 送信先のZigbeeモジュールのMAC Address 
-  def create(cmd, max_temp, min_temp, addr)
+  def create(cmd, min_temp, max_temp, addr)
     def sign(num)
       return (num > 0) ? "+" : "-"  
     end
@@ -59,7 +59,6 @@ end
 class ZigbeeFrameParser
 
   def initialize
-    @API_mode = 2
   end
 
   # Raw dataをパースするメソッド
@@ -80,10 +79,10 @@ class ZigbeeFrameParser
 
   # MAC Addressの取り出し
   # "13"を追加する理由はZigbeeのAPIモードが
-  # 2になっておりESC処理で落ちているため
+  # 2になっておりESC処理で落ちているため。
   # unpack("H*")はStringをASCII文字列の配列に変換するメソッド
   # @param [Array] data Zigbeeフレームのbyte列
-  # @return [String] addr ZigbeeのMAC Address
+  # @return [String] ZigbeeのMAC Address
   def get_addr(data)
     addr = (data.join)[4,1].unpack("H*") + [13] +
           (data.join)[5,6].unpack("H*")
@@ -105,7 +104,7 @@ class ZigbeeFrameParser
   # 温度の取得
   # @return [String] 温度
   def get_temp(data)
-    return (data.join)[18,6]
+    return (data.join)[18,6].to_f
   end
 
   # 異常状態の取得
@@ -147,8 +146,8 @@ class Zigbee
     return @zigbee_frame_parser.parse(raw_data)
   end
 
-  def create(cmd, max_temp, min_temp, addr)
-    return @zigbee_frame_creater.create(cmd, max_temp, min_temp, addr)
+  def create(cmd, min_temp, max_temp, addr)
+    return @zigbee_frame_creater.create(cmd, min_temp, max_temp, addr)
   end
 
   # センサのZigbeeから送られてくる1フレーム分を受信するメソッド
@@ -206,9 +205,19 @@ class Zigbee
 
   end
 
-  def send(cmd, max, min, addr)
-    frame = create(cmd, max, min, addr)
+  def send(cmd, min, max, addr)
+    begin
+    frame = create(cmd, min, max, addr)
     @sp.write(frame)
+    result = 0
+    rescue => e
+      p '---------------------------------'
+      p "SerialPort write error"
+      p e.message
+      p '---------------------------------'
+      result = 1
+    end
+    return result
   end
  
 end

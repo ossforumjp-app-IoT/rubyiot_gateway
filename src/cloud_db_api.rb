@@ -25,6 +25,8 @@ class CloudDatabaseAPI
     @USER = "pi"
     @PASS = "raspberry"
 
+    # @note tmp variable
+    proxy_host=""
     @http = HTTPClient.new(proxy_host)
     #@http.set_proxy_auth(proxy_user, proxy_passwd)
     @http.set_auth(server, @USER, Digest::SHA256.hexdigest(@PASS))

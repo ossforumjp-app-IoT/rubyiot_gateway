@@ -53,7 +53,7 @@ class DataHandler
   #
   def store_sensing_data(data)
     addr = data["addr"]
-    res = @cloud.store_sensing_data(id_h["#{addr}"], data["temp"])
+    @cloud.sotre_sensing_data(id_h["#{addr}"], data["temp"])
   end
 
   def notify_alert(data, min, max)
@@ -63,8 +63,8 @@ class DataHandler
 
   def get_monitoring_range(data)
     addr = data["addr"]
-    @cloud.get_monitor_range(id_h["#{addr}"])
-    res 
+    res = @cloud.get_monitor_range(id_h["#{addr}"])
+    return res
   end
 
   def get_operation
@@ -78,8 +78,8 @@ class DataHandler
 
   # ドア開錠コマンド取得のAPIを実行
   # TODO 引数と返り値の処理
-  def get_door_cmd(xxx)
-    res = @cloud.get_door_cmd(xxx)
+  def get_door_cmd(XXX)
+    res = @cloud.get_door_cmd(XXX)
     return XXX
   end
 

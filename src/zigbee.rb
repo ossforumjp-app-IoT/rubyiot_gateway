@@ -225,7 +225,7 @@ end
 # DEBUG
 if $0 == __FILE__ then
   z = Zigbee.new
-  #p z.parse(z.recv()) この行を入れると相手側に制御コマンドが届かない
+  p z.recv()
   p z.recv()["addr"]
   z.send(1, 30.0, 11.0, z.recv()["addr"])
 end

@@ -128,7 +128,9 @@ class Gateway
     
     @api_worker[GET_OPERATION] = lambda {
         Thread.new {
-          ope_id, cmd = @data_hdr.get_operation()
+          res = @data_hdr.get_operation()
+          ope_id = res["0"]
+          cmd = res["1"]
           @data_hdr.cmd.push([data["addr"], ope_id, cmd])
         }
     }

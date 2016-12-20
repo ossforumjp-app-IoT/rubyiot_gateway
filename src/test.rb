@@ -2,7 +2,12 @@
 
 require "thread"
 
-q = Queue.new
+def hoge(x)
+  p x.call(3)
+end
 
+l = lambda {|x| x * x}
+k = lambda {|x| 1 * x}
 
-q.push(("a","b","c"))
+hoge(l)
+hoge(k)

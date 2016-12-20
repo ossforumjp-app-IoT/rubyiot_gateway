@@ -98,7 +98,7 @@ class ZigbeeFrameParser
   # FAN状態の取得
   # @return [String] FANの状態
   def get_fan_status(data)
-    return data[14,1].join
+    return data[16,1].join
   end
 
   # 温度の取得
@@ -201,6 +201,7 @@ class Zigbee
     
     end # loop do
 
+    p raw_data
     return parse(raw_data)
 
   end
@@ -208,6 +209,7 @@ class Zigbee
   def send(cmd, min, max, addr)
     begin
     frame = create(cmd, min, max, addr)
+    p frame
     @sp.write(frame)
     result = 0
     rescue => e
@@ -225,8 +227,7 @@ end
 # DEBUG
 if $0 == __FILE__ then
   z = Zigbee.new
-  p z.recv()
-  p z.recv()["addr"]
-  z.send(1, 30.0, 11.0, z.recv()["addr"])
+  p data = z.recv()
+  z.send(1, 11.0, 30.0, data["addr"])
 end
 

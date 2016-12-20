@@ -18,6 +18,7 @@ module PROCEDURE_NAME
   GET_OPERATION = "get_operation"
   NOTIFY_ALERT = "notify_alert"
   STORE_SENSING_DATA = "sotre_sensing_data"
+  SET_OPERATION_STATUS = "set_operation_status"
 end
 
 # Gateway処理を行うクラス
@@ -39,6 +40,7 @@ class Gateway
     @sensor = Sensor.new(10.0, 30.0)
     @data_hdr = DataHandler.new(@id)
     @api_worker = Hash.new 
+    @z = Zigbee.new
   end
 
   # 処理の全体

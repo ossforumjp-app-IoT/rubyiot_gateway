@@ -27,9 +27,8 @@ class DataHandler
 
   # クラウドにデバイスを登録してクラウドで扱うセンサIDとセンサアドレスを対応付させる
   # @param [String] addr センサアドレス
-  # TODO  valuesというmethodがない
-  # data_handler.rb:32:in `register_id': undefined method `values' for #<String:0x000000015b17c8> (NoMetho
-  # dError)
+
+
   def register_id(addr)
     res = @cloud.post_device(@gw_id, addr)
     @id_h["#{addr}"] = res.values[0][0]["id"]
@@ -80,9 +79,7 @@ class DataHandler
 
   def get_operation
     res = @cloud.get_operation(@gw_id)
-    # TODO res.valuesを呼び出せない、他の呼び方にする
-    # resのサンプル　
-    # { \"xxx\": { \"operation_id\": \"yyy\", \"value\": \"操作値\" } }"：：
+
     return res.values[0]["operation_id"], res.values[0]["value"]
   end
 
@@ -92,7 +89,6 @@ class DataHandler
 
   # ドア開錠コマンド取得のAPIを実行
   # TODO 引数と返り値の処理
-  # 入力メンバ変数を大文字することはrubyのルール違反
   def get_door_cmd(xxx)
     res = @cloud.get_door_cmd(xxx)
     return xxx
@@ -120,30 +116,28 @@ if $0 == __FILE__ then
   gateway_id = 1111
   status    = "status"
 
-  puts "==========================================="
-
-  d_hdr.store_sensing_data({"addr"=>"00b0b0b0b0b0"})
-  sleep 3
-  p d_hdr.id_h
-#
-#  puts "==========================================="
-#  addr_ = 1
-#  d_hdr.register_id(addr_)
-#  p d_hdr.id_h["#{addr_}"]
-
-  puts "==========================================="
-  p d_hdr.store_sensing_data(data)
-
-  puts "==========================================="
-#  d_hdr.notify_alert(data,min,max)
+  addr =  "00b0b0b0b0b0"
 
   puts "==========================================="
   p d_hdr.get_monitoring_range(data)
 
   puts "==========================================="
-#  p d_hdr.get_operation()
+  p d_hdr.get_operation()
+
+#  puts "==========================================="
+#  d_hdr.notify_alert(data,min,max)
+
+  puts "==========================================="
+  p d_hdr.register_id(addr);
 
   puts "==========================================="
   p d_hdr.set_operation_status(gateway_id, status)
+
+  puts "==========================================="
+  p d_hdr.store_sensing_data(data)
+
+
+
+
 end
 

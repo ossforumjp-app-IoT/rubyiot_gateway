@@ -23,7 +23,7 @@ class DataHandler
     @id_h = Hash.new
   end
 
-  attr_accessor :id_h, :data
+  attr_accessor :cmd, :id_h,
 
   # クラウドにデバイスを登録してクラウドで扱うセンサIDとセンサアドレスを対応付させる
   # @param [String] addr センサアドレス
@@ -96,7 +96,8 @@ class DataHandler
 
   # TODO Destructorを実装してログアウトしたい
   def logout
-    @cloud.logout()
+#    @cloud.logout()
+    puts "Log out"
   end
 
 end

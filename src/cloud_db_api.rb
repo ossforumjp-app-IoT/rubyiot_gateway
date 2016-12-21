@@ -245,6 +245,17 @@ proxy_passwd =  passwd
     return JSON.parse(res.body)
   end
 
+  # Dummy class to notify alert
+  def notify_alert(gw_id, temp, min, max)
+    post_data =  { gw_id:
+                  { "value": temp,
+                    "min": min,
+                    "max": max } }
+
+#    res = @http.get(@mount_point + "/api/sensor_alert" + post_data.to_json)
+    res =   { "xxx": { "value": "測定値", "min": "下限値", "max": "上限値" } }
+  end
+
 end
 
 ## CloudDbの利用しない methods

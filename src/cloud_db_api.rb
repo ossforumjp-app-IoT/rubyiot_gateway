@@ -98,7 +98,7 @@ proxy_passwd =  passwd
 #    res = @http.get(@mount_point + "/api/operation?#{query_hash.to_query}")
 #    return JSON.parse(res.body)
 
-    return { "xxx" => { "operation_id": "yyy", "value"  => "操作値" } }
+    return { "xxx" => { "operation_id" => "yyy", "value"  => "操作値" } }
   end
 
   #  controllerへの操作指示を登録
@@ -248,12 +248,12 @@ proxy_passwd =  passwd
   # Dummy class to notify alert
   def notify_alert(gw_id, temp, min, max)
     post_data =  { gw_id:
-                  { "value": temp,
-                    "min": min,
-                    "max": max } }
+                  { "value" => temp,
+                    "min" => min,
+                    "max" => max } }
 
 #    res = @http.get(@mount_point + "/api/sensor_alert" + post_data.to_json)
-    res =   { "xxx": { "value": "測定値", "min": "下限値", "max": "上限値" } }
+    res =   { "xxx" => { "value" => "測定値", "min" => "下限値", "max" => "上限値" } }
   end
 
 end

@@ -247,7 +247,7 @@ proxy_passwd =  passwd
 
   # Dummy class to notify alert
   def notify_alert(gw_id, temp, min, max)
-    post_data =  { gw_id:
+    post_data =  { gw_id =>
                   { "value" => temp,
                     "min" => min,
                     "max" => max } }

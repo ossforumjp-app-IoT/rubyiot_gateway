@@ -94,6 +94,7 @@ proxy_passwd =  passwd
   #   @param [Integer] gateway_id ゲートウェイID
   def get_operation(gateway_id)
     query_hash = { 'gateway_id' => gateway_id }
+    p query_hash
     debug("GET Query Data : #{query_hash.to_query}")
 
 #    res = @http.get(@mount_point + "/api/operation?#{query_hash.to_query}")

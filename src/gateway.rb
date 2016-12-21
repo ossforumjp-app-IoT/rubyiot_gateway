@@ -56,8 +56,10 @@ class Gateway
     begin
     while true
 
-#      data = @zigbee.recv()
-      data = {"dev_status"=>3, "temperature"=>23.1, "fan_status"=>0, "fail_status"=>0, "addr"=>"0013a20040b189bc"}
+      data = @zigbee.recv()
+#      puts data
+#      data = {"dev_status"=>3, "temperature"=>23.1, "fan_status"=>0, "fail_status"=>0, "addr"=>"0013a20040b189bc"}
+#      data = {"addr"=>"0013a20040b189bc", "fan"=>"0", "temp"=>23.1, "fail"=>"0", "status"=>"3"}
       unless @data_hdr.id_h.has_key?(data["addr"]) then
         @data_hdr.register_id(data["addr"])
       end

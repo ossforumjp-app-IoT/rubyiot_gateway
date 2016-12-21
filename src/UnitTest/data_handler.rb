@@ -38,7 +38,7 @@ class TestDataHandler < Minitest::Test # Test::Unit::TestCase
     puts "====================================="
     puts __method__
 #    assert_nothing_raised( RuntimeError ) { DataHandler.new(@gateway_id).get_operation() }
-    puts DataHandler.new(@gateway_id).get_operation();
+    puts DataHandler.new(@gateway_id).get_operation(@gateway_id);
   end
 
   def test_notify_alert

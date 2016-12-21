@@ -8,6 +8,8 @@ require_relative "sensor"
 require "thread"
 require "logger"
 
+
+
 # Main処理のパラメータ
 module MAIN_PARAMETER
   MAIN_LOOP = 1.0   # 1.0 second
@@ -18,7 +20,7 @@ module PROCEDURE_NAME
   GET_DOOR_CMD = "get_door_cmd"
   GET_MONITORING_RANGE = "get_monitoring_range"
   GET_OPERATION = "get_operation"
-  NOTIFY_ALERT = "notify_alert"
+  SET_SENSOR_ALERT = "set_sensor_alert"
   STORE_SENSING_DATA = "store_sensing_data"
   SET_OPERATION_STATUS = "set_operation_status"
 end
@@ -47,34 +49,35 @@ class Gateway
     @data_hdr = DataHandler.new(@id)
     @api_worker = Hash.new
     @zigbee = Zigbee.new
-    @log = Logger.new("/tmp/log")
-    @log.level=Logger::DEBUG
+    @log = Logger.new("/tmp/gateway.log")
+    @log.level = Logger::DEBUG
     # DEBUG < INFO < WARN < ERROR < FATAL < UNKNOWN
   end
 
   # 全体の流れ
   def main
-    data = {}
+    @log.info("#{__method__} start.")
     # method mappingsのHashを生成
     def_threads_mapping()
     begin
     while true
+      data = {}
 
       data = @zigbee.recv()
-      @log.debug(data)
+      @log.debug("Receive data :#{data}")
 
       unless @data_hdr.id_h.has_key?(data["addr"]) then
         @data_hdr.register_id(data["addr"])
-        @log.debug(@data_hdr.id_h)
+        @log.debug("MAC-SensorID table :#{@data_hdr.id_h}")
       end
 
       @api_worker[STORE_SENSING_DATA].call(data)
 
-      @api_worker[NOTIFY_ALERT].call(
+      @api_worker[SET_SENSOR_ALERT].call(
         data,
         @sensor.min,
         @sensor.max
-      ) unless data["fail_status"].to_i.zero?
+      ) unless data["fail"].to_i.zero?
 
       # 画像ファイル確認のポーリング
       # ここはまとめてハンドラにすべき?
@@ -89,7 +92,7 @@ class Gateway
 
 #　　　       # 制御コマンド取得のポーリング
 #      # ここはまとめてハンドラにすべき?
-      @api_worker[GET_OPERATION].call()
+      @api_worker[GET_OPERATION].call(data)
 
       # TODO : wtf
       # Zigbeeでデータを送信
@@ -99,6 +102,7 @@ class Gateway
         result = @zigbee.send(q[2], @sensor.min, @sensor.max, q[0])
         @api_worker[SET_OPERATION_STATUS].call(q[1], result)
         @log.info("Send operation to sensor.")
+        @log.debug("Send operation to sensor :#{q[2]} #{@sensor.min} #{@sensor.max} #{q[0]}")
       end
 
       sleep MAIN_PARAMETER::MAIN_LOOP
@@ -119,8 +123,8 @@ class Gateway
       Thread.new {@data_hdr.store_sensing_data(data)}
     }
 
-    @api_worker[NOTIFY_ALERT] = lambda {|data, min, max|
-      Thread.new {@data_hdr.notify_alert(data, min, max)}
+    @api_worker[SET_SENSOR_ALERT] = lambda {|data, min, max|
+      Thread.new {@data_hdr.set_sensor_alert(data, min, max)}
     }
     # TODO get_door_cmdで開錠コマンドを取得しAPIを続けるかどうかの判定
     # TODO get_door_cmdの引数
@@ -130,27 +134,32 @@ class Gateway
         # ATTENTION ここをwhile文にしてるのはコマンドの指示がない場合を
         # 考慮しているため。
         begin
-          ope_id, cmd = @data_hdr.get_door_cmd(xxx)
+          res = @data_hdr.get_door_cmd(data)
+          ope_id = res[0]
+          cmd = res[1]
           sleep MAIN_PARAMETER::API_INTERVAL
-        end while cmd == "xxx"
+        end unless cmd == ("2"||"3")
         @data_hdr.cmd.push([data["addr"], ope_id, cmd])
+        @log.debug("Get door cmd :#{cmd}")
       }
     }
 
-    @api_worker[GET_OPERATION] = lambda {
+    @api_worker[GET_OPERATION] = lambda {|data|
         Thread.new {
           res = @data_hdr.get_operation()
-          ope_id = res["0"]
-          cmd = res["1"]
+          ope_id = res[0]
+          cmd = res[1]
           @data_hdr.cmd.push([data["addr"], ope_id, cmd])
+          @log.debug("Get LED cmd :#{cmd}")
         }
     }
 
     @api_worker[GET_MONITORING_RANGE] = lambda {|data|
       Thread.new {
         res = @data_hdr.get_monitoring_range(data)
-        @sensor.min = res["min"]
-        @sensor.max = res["max"]
+        @sensor.min = res["min"].to_f
+        @sensor.max = res["max"].to_f
+        @log.debug("Monitoring range [min,max] :#{@sensor.min},#{@sensor.max}")
       }
     }
 

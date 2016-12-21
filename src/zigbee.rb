@@ -4,6 +4,7 @@
 require "serialport"
 require "yaml"
 require_relative "serialdummy"
+require "logger"
 
 # Zigbeeを取り扱うクラスのパラメータ
 module ZIGBEE_PARAM
@@ -140,7 +141,10 @@ class Zigbee
 
     @zigbee_frame_parser = ZigbeeFrameParser.new
     @zigbee_frame_creater = ZigbeeFrameCreater.new(@@xbee)
-    #@addr = nil
+
+    @log = Logger.new("/tmp/zigbee.log")
+    @log.level = Logger::DEBUG
+ #@addr = nil
   end
 
   def parse(raw_data)
@@ -202,7 +206,6 @@ class Zigbee
 
     end # loop do
 
-#    p raw_data
     return parse(raw_data)
 
   end
@@ -210,7 +213,7 @@ class Zigbee
   def send(cmd, min, max, addr)
     begin
     frame = create(cmd, min, max, addr)
-    p frame
+    @log.debug("#{frame.unpack("H*")}")
     @sp.write(frame)
     result = 0
     rescue => e
@@ -229,6 +232,7 @@ end
 if $0 == __FILE__ then
   z = Zigbee.new
   p data = z.recv()
+  #z.send(1, 11.0, 30.0, "0013A20040b414a7")
   z.send(1, 11.0, 30.0, data["addr"])
 end
 

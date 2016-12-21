@@ -72,7 +72,7 @@ proxy_passwd =  passwd
 #    res = @http.get(@mount_point + "/api/monitor?#{query_hash.to_query}")
 #    return JSON.parse(res.body)
 
-    return { "min" => "下限値", "max" => "上限値" }
+    return { "min" => "1.0", "max" => "28.0" }
   end
 
   # センサーの測定データを登録
@@ -87,7 +87,7 @@ proxy_passwd =  passwd
 #    res = @http.post(@mount_point + "/api/sensor_data", post_data)
 #    return JSON.parse(res.body)
 
-    return { "xxx" => "測定値" }
+    return { "xxx" => "23.0" }
   end
 
   # リモート操作指示状態を取得するメソッド
@@ -100,7 +100,7 @@ proxy_passwd =  passwd
 #    res = @http.get(@mount_point + "/api/operation?#{query_hash.to_query}")
 #    return JSON.parse(res.body)
 
-    return { "xxx" => { "operation_id" => "yyy", "value"  => "操作値" } }
+    return { "60" => { "operation_id" => "829", "value"  => "1" } }
   end
 
   #  controllerへの操作指示を登録
@@ -115,7 +115,7 @@ proxy_passwd =  passwd
 #    res = @http.post(@mount_point + "/api/operation_status", post_data)
 #    return JSON.parse(res.body)
 
-    return { "xxx" => "実行結果" }
+    return { "xxx" => "1" }
   end
 
   # センサーの測定データを登録
@@ -183,8 +183,7 @@ proxy_passwd =  passwd
 
     #    puts "--- 応答 ---"
 #    puts JSON.parse(res.body)
-
-	return {"2"=>[{"id"=>"60", "class_group_code"=>"0x00", "class_code"=>"0x00", "property_code"=>"0x30"}, {"id"=>"61", "class_group_code"=>"0x00", "class_code"=>"0x00", "property_code"=>"0x31"}]}
+    return {"2"=>[{"id"=>"60", "class_group_code"=>"0x00", "class_code"=>"0x00", "property_code"=>"0x30"}, {"id"=>"61", "class_group_code"=>"0x00", "class_code"=>"0x00", "property_code"=>"0x31"}]}
 
   end
 
@@ -221,7 +220,7 @@ proxy_passwd =  passwd
 #    res = @http.post(@mount_point + "/api/operation", post_data)
 #    return JSON.parse(response.body)
 
-    return { "xxx" => "操作値" }
+    return {"61"=>{"operation_id"=>"813", "value"=>"1"}}
   end
 
   # クラウドにファイルをアップロードするメソッド
@@ -229,6 +228,7 @@ proxy_passwd =  passwd
   # TODO メソッド名とboundaryは仮決め。
   # 動作未確認
   def upload(filepath)
+=begin
     boundary = "-------------------------------"
     open(filepath) do |file|
       post_data = {"XXX"=>file}
@@ -236,15 +236,17 @@ proxy_passwd =  passwd
                          "content-type" => "multipart/form-data,
                          boundary=#{boundary}")
     end
-
+=end
   end
-
   # ドアの開錠コマンドを取得
   # TODO メソッド名は仮決め
   # 動作未確認
-  def get_door_cmd
+  def get_door_cmd(xxx)
+=begin
     res = @http.get(@mount_point + "api/XXX")
     return JSON.parse(res.body)
+=end
+    return {"61"=>{"operation_id"=>"813", "value"=>"3"}}
   end
 
   # Dummy class to notify alert

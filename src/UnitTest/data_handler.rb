@@ -49,7 +49,7 @@ class TestDataHandler < Test::Unit::TestCase
     puts __method__
     data = {"addr" => @addr, "temp" => "21"}
 #    assert_nothing_raised( RuntimeError ) { DataHandler.new(@gateway_id).register_id(@addr) }
-    puts DataHandler.new(@gateway_id).register_id(@addr);
+    puts DataHandler.new(@gateway_id).register_id();
   end
 
   def test_set_operation_status

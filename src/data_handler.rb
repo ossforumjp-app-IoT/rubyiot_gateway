@@ -23,12 +23,10 @@ class DataHandler
     @id_h = Hash.new
   end
 
-  attr_accessor :cmd, :id_h,
+  attr_accessor :cmd, :id_h
 
   # クラウドにデバイスを登録してクラウドで扱うセンサIDとセンサアドレスを対応付させる
   # @param [String] addr センサアドレス
-
-
   def register_id(addr)
     res = @cloud.post_device(@gw_id, addr)
     @id_h["#{addr}"] = res.values[0][0]["id"]

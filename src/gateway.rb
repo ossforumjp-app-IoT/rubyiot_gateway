@@ -57,10 +57,9 @@ class Gateway
 
 #      data = @zigbee.recv()
       data = {"dev_status"=>3, "temperature"=>23.1, "fan_status"=>0, "fail_status"=>0, "addr"=>"0013a20040b189bc"}
-      # TODO DataHandler の　id_h の初期化は　{} なのでエラーが発生
-#      unless @data_hdr.id_h.has_key?(data["addr"]) then
-#        @data_hdr.register_id(data["addr"])
-#      end
+      unless @data_hdr.id_h.has_key?(data["addr"]) then
+        @data_hdr.register_id(data["addr"])
+      end
 
       @api_worker[STORE_SENSING_DATA].call(data)
 

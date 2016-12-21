@@ -1,4 +1,5 @@
 #!/usr/bin/ruby -Ku
+# encoding: utf-8
 
 require_relative "cloud_db_api"
 require_relative "image_file"

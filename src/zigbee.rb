@@ -1,4 +1,5 @@
 #!/usr/bin/ruby -Ku
+# encoding: utf-8
 
 require "serialport"
 require "yaml"
@@ -29,10 +30,10 @@ class ZigbeeFrameCreater
   # @param [Intger] cmd FAN/DOORの制御コマンド
   # @param [Float] max_temp 高温異常温度値
   # @param [Float] min_temp 低温異常温度値
-  # @param [String] addr 送信先のZigbeeモジュールのMAC Address 
+  # @param [String] addr 送信先のZigbeeモジュールのMAC Address
   def create(cmd, min_temp, max_temp, addr)
     def sign(num)
-      return (num > 0) ? "+" : "-"  
+      return (num > 0) ? "+" : "-"
     end
 
     def check_sum(*args)
@@ -41,16 +42,16 @@ class ZigbeeFrameCreater
 
     data = ("0" + "," +
             "#{cmd}" + "," +
-            sign(max_temp) + 
+            sign(max_temp) +
             sprintf("0%2.1f",max_temp.abs) + "," +
             sign(min_temp) +
             sprintf("0%2.1f",min_temp.abs)).unpack("H*").join
-    raw_data = @stcode + @len + @cmd + 
-               @frmid + addr + @local + 
-               @option + data + 
+    raw_data = @stcode + @len + @cmd +
+               @frmid + addr + @local +
+               @option + data +
                check_sum(@cmd, @frmid, addr, @local, @option, data)
     return [raw_data].pack("H*")
-  end 
+  end
 
 end
 
@@ -73,7 +74,7 @@ class ZigbeeFrameParser
     data["temp"] = get_temp(raw_data)
     data["fail"] = get_fail_status(raw_data)
     data["status"] = get_device_status(raw_data)
-  
+
     return data
   end
 
@@ -127,7 +128,7 @@ class Zigbee
       @sp = SerialDummyPort.new
     else
       @sp = SerialPort.new(spconf["device"], spconf["boudrate"],
-                           spconf["databits"], spconf["stopbits"], 
+                           spconf["databits"], spconf["stopbits"],
                            spconf["parity"])
     end
     rescue => e
@@ -169,7 +170,7 @@ class Zigbee
           next
         end
       end
-  
+
       # データ長チェック
       if count == 2 then
         length_str = raw_data[1,2]
@@ -183,7 +184,7 @@ class Zigbee
           next
         end
       end
-    
+
       # センサ情報が正常の場合、データを復帰する
       count = count + 1
       if count > 2 then
@@ -192,13 +193,13 @@ class Zigbee
           if chknum != ["3"] then
             count = 0
             p "sensor error st= #{chknum}"
-            @sp.flush_input  
+            @sp.flush_input
             next
           end
         break
         end
       end
-    
+
     end # loop do
 
     p raw_data
@@ -221,7 +222,7 @@ class Zigbee
     end
     return result
   end
- 
+
 end
 
 # DEBUG

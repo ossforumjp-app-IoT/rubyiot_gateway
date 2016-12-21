@@ -1,3 +1,5 @@
+#!/usr/bin/ruby -Ku
+# encoding: utf-8
 
 # センサデータのデバック用クラス
 class SerialDummyPort
@@ -29,7 +31,7 @@ class SerialDummyPort
 
 end
 
-if $0 == __FILE__ then 
+if $0 == __FILE__ then
   sdp = SerialDummyPort.new
   p sdp.read()
   p sdp.read(2)

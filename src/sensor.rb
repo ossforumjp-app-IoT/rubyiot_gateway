@@ -1,5 +1,5 @@
 #!/usr/bin/ruby -Ku
-
+# encoding: utf-8
 
 class Sensor
 

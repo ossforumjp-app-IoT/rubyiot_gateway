@@ -1,4 +1,5 @@
 #!/usr/bin/ruby -Ku
+# encoding: utf-8
 
 # @author FAE
 # 2015/10/29

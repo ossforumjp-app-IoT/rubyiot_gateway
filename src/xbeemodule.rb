@@ -1,4 +1,5 @@
-#!/usr/bin/ruby
+#!/usr/bin/ruby -Ku
+# encoding: utf-8
 
 require 'serialport'
 require_relative './serialdummy'
@@ -21,14 +22,14 @@ require 'yaml'
 
 
 class ZigbeeHandler
-  
+
   def initialize()
 
   end
- 
+
   def readRegs()
 
-  end 
+  end
 
   def writeRegs()
 

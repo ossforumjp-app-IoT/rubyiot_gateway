@@ -1,8 +1,12 @@
+#!/usr/bin/ruby -Ku
+# encoding: utf-8
+
 require '../data_handler'
-require "test/unit"
+require 'minitest/autorun'
+#require "test/unit"
 
 
-class TestDataHandler < Test::Unit::TestCase
+class TestDataHandler < Minitest::Test # Test::Unit::TestCase
 
   # Testing parameters
   @gateway_id = 1
@@ -16,7 +20,8 @@ class TestDataHandler < Test::Unit::TestCase
 
   def test_typecheck
     puts "====================================="
-    assert_nothing_raised( RuntimeError ) { DataHandler.new(@gateway_id) }
+#    assert_nothing_raised( RuntimeError ) { DataHandler.new(@gateway_id) }
+    DataHandler.new(@gateway_id)
   end
 
   d_hdr = DataHandler.new(1)
@@ -49,7 +54,7 @@ class TestDataHandler < Test::Unit::TestCase
     puts __method__
     data = {"addr" => @addr, "temp" => "21"}
 #    assert_nothing_raised( RuntimeError ) { DataHandler.new(@gateway_id).register_id(@addr) }
-    puts DataHandler.new(@gateway_id).register_id();
+    puts DataHandler.new(@gateway_id).register_id(data);
   end
 
   def test_set_operation_status

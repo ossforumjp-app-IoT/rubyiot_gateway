@@ -1,8 +1,12 @@
+#!/usr/bin/ruby -Ku
+# encoding: utf-8
+
 require '../gateway'
-require "test/unit"
+require 'minitest/autorun'
+#require "test/unit"
 
 
-class TestDataHandler < Test::Unit::TestCase
+class TestDataHandler < Minitest::Test #Test::Unit::TestCase
 
   @gateway_id = 1
 

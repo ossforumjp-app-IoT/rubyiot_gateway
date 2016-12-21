@@ -1,4 +1,5 @@
 #!/usr/bin/ruby -Ku
+# encoding: utf-8
 
 require_relative 'cloud_db_api'
 require_relative 'zigbee'
@@ -46,7 +47,7 @@ class DataHandler
     if @file_hdr.search
       @cloud.upload(@file_hdr.filepath)
     else
-      p @file_hdr.filepath + "が存在しません"
+      p @file_hdr.filepath < " が存在しない"
     end
   end
 

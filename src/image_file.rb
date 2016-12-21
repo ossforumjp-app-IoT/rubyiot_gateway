@@ -1,4 +1,5 @@
 #!/usr/bin/ruby -Ku
+# encoding: utf-8
 
 class ImageFile
 
@@ -25,7 +26,7 @@ class ImageFile
     p e.message
     p '---------------------------------'
     end
-  end 
+  end
 
 end
 

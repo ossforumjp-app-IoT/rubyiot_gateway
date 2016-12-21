@@ -1,4 +1,5 @@
-#!/usr/bin/ruby
+#!/usr/bin/ruby -Ku
+# encoding: utf-8
 
 require 'rubygems'
 require 'uri'

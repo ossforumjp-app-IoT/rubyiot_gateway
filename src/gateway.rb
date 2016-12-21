@@ -6,6 +6,7 @@ require_relative "image_file"
 require_relative "data_handler"
 require_relative "sensor"
 require "thread"
+require "logger"
 
 # Main処理のパラメータ
 module MAIN_PARAMETER
@@ -46,6 +47,9 @@ class Gateway
     @data_hdr = DataHandler.new(@id)
     @api_worker = Hash.new
     @zigbee = Zigbee.new
+    @log = Logger.new("/tmp/log")
+    @log.level=Logger::DEBUG
+    # DEBUG < INFO < WARN < ERROR < FATAL < UNKNOWN
   end
 
   # 全体の流れ
@@ -57,11 +61,11 @@ class Gateway
     while true
 
       data = @zigbee.recv()
-#      puts data
-#      data = {"dev_status"=>3, "temperature"=>23.1, "fan_status"=>0, "fail_status"=>0, "addr"=>"0013a20040b189bc"}
-#      data = {"addr"=>"0013a20040b189bc", "fan"=>"0", "temp"=>23.1, "fail"=>"0", "status"=>"3"}
+      @log.debug(data)
+
       unless @data_hdr.id_h.has_key?(data["addr"]) then
         @data_hdr.register_id(data["addr"])
+        @log.debug(@data_hdr.id_h)
       end
 
       @api_worker[STORE_SENSING_DATA].call(data)
@@ -75,6 +79,7 @@ class Gateway
       # 画像ファイル確認のポーリング
       # ここはまとめてハンドラにすべき?
       if @data_hdr.file_search() == true then
+         @log.info("Detecte image file.")
          @data_hdr.upload()
          @data_hdr.delete()
          @api_worker[GET_DOOR_CMD].call(data)
@@ -93,6 +98,7 @@ class Gateway
         q = @data_hdr.cmd.pop()
         result = @zigbee.send(q[2], @sensor.min, @sensor.max, q[0])
         @api_worker[SET_OPERATION_STATUS].call(q[1], result)
+        @log.info("Send operation to sensor.")
       end
 
       sleep MAIN_PARAMETER::MAIN_LOOP
@@ -157,3 +163,6 @@ class Gateway
 
 end
 
+g = Gateway.new(1)
+g.def_threads_mapping()
+g.main()

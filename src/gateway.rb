@@ -80,10 +80,11 @@ class Gateway
 
       # 画像ファイル確認のポーリング
       # ここはまとめてハンドラにすべき?
-      if @data_hdr.file_search() == true then
+      # if @data_hdr.file_search() == true then
+      if @data_hdr.file_search() then  
          @log.info("Detecte image file.")
          @data_hdr.upload()
-		 sleep MAIN_PARAMETER::UPLOAD_COST_TIME
+		 #  sleep MAIN_PARAMETER::UPLOAD_COST_TIME
          @data_hdr.delete()
 	  end
 	  
@@ -110,7 +111,7 @@ class Gateway
 
     end
     rescue Interrupt
-      p "Program have finished by Ctrl+c"
+      p "Program have been stopped by Ctrl+c"
 	  sleep 3
     end
 
@@ -176,5 +177,5 @@ class Gateway
 end
 
 g = Gateway.new(1)
-g.def_threads_mapping()
+#g.def_threads_mapping()
 g.main()

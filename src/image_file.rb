@@ -7,7 +7,9 @@ class ImageFile
   def initialize
     #dir = "/home/tasaka/rubyiot_gateway/src"
     dir = "/home/pi/work_tasaka/rubyiot_gateway/src"
+    #dir = "/home/pi/test_image_file"
     filename = "raspberrypi.png"
+    #filename = ""
     @filepath = dir + "/" + filename
     @flag = false
     @log = Logger.new("/tmp/image_file.log")
@@ -18,20 +20,17 @@ class ImageFile
 
   def search
     @flag = true if File.exist?(@filepath)
-    @log.debug("File flag :#{@flag}")
+    @log.debug("#{self.class.name}: #{__method__}  File flag :#{@flag}")
     return @flag
   end
 
   # 指定したパスのファイルを削除するメソッド
   def delete
     begin
-    File.delete(@filepath)
-    @flag = false
+      File.delete(@filepath)
+      @flag = false
     rescue => e
-    p '---------------------------------'
-    p "File delete error"
-    p e.message
-    p '---------------------------------'
+      @log.error("#{self.class.name} : #{__method__} : #{e.message}");
     end
   end
 

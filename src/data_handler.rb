@@ -50,11 +50,7 @@ class DataHandler
   # TODO
   def upload
     @log.debug("Call upload method")
-    if @file_hdr.search
-      @cloud.upload(@file_hdr.filepath)
-    else
-      p @file_hdr.filepath < " が存在しない"
-    end
+    @cloud.upload(@file_hdr.filepath)
   end
 
   # ローカルに保存されているファイルを削除する

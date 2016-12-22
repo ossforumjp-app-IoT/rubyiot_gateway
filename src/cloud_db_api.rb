@@ -23,8 +23,8 @@ class CloudDatabaseAPI
     @mount_point = "http://rubyiot.rcloud.jp"
     @PORT = 80
     @PORT.freeze
-    @USER = "pi"
-    @PASS = "raspberry"
+    @USER = "aaa"
+    @PASS = "aaa"
 
     # @note tmp variable
     proxy_host=""
@@ -34,6 +34,9 @@ class CloudDatabaseAPI
 
     @log = Logger.new("/tmp/cloud.log")
     @log.level = Logger::DEBUG
+   
+    login()
+
   end
 
 =begin
@@ -58,6 +61,7 @@ proxy_passwd =  passwd
     post_data = query_hash.to_json
     #debug("POST Data : #{post_data}")
 
+    @log.debug("set_monitor_range post :#{post_data}")
     res = @http.post(@mount_point + "/api/monitor", post_data)
     @log.debug("set_monitor_range response :#{JSON.parse(res.body)}")
     return JSON.parse(res.body)
@@ -72,6 +76,7 @@ proxy_passwd =  passwd
     query_hash = { 'sensor_id' => sensor_id }
     #debug("GET Query Data : #{query_hash.to_query}")
 
+    @log.debug("get_monitor_range get :#{query_hash}")
     res = @http.get(@mount_point + "/api/monitor?#{query_hash.to_query}")
     @log.debug("get_monitor_range response :#{JSON.parse(res.body)}")
     return JSON.parse(res.body)
@@ -88,6 +93,7 @@ proxy_passwd =  passwd
     post_data = query_hash.to_json
     #debug("POST Data : #{post_data}")
 
+    @log.debug("store_sensing_data post :#{post_data}")
     res = @http.post(@mount_point + "/api/sensor_data", post_data)
     @log.debug("store_sensing_data response :#{JSON.parse(res.body)}")
     return JSON.parse(res.body)
@@ -102,11 +108,12 @@ proxy_passwd =  passwd
     #p query_hash
     #debug("GET Query Data : #{query_hash.to_query}")
 
+    @log.debug("get_operation get :#{query_hash}")
     res = @http.get(@mount_point + "/api/operation?#{query_hash.to_query}")
     @log.debug("get_operation response :#{JSON.parse(res.body)}")
-    return JSON.parse(res.body)
+    #return JSON.parse(res.body)
 
-#    return { "60" => { "operation_id" => "829", "value"  => "1" } }
+     return { "60" => { "operation_id" => "829", "value"  => "1" } }
   end
 
   #  controllerへの操作指示を登録
@@ -118,6 +125,7 @@ proxy_passwd =  passwd
     post_data = query_hash.to_json
     #debug("POST Data : #{post_data}")
 
+    @log.debug("set_operation_status post :#{post_data}")
     res = @http.post(@mount_point + "/api/operation_status", post_data)
     @log.debug("set_operation_status response :#{JSON.parse(res.body)}")
     return JSON.parse(res.body)
@@ -209,13 +217,16 @@ proxy_passwd =  passwd
       'password_hash' => Digest::SHA256.hexdigest(@PASS)
     }
     post_data = post_hash.to_json
+    @log.debug("login post :#{post_data}")
     res = @http.post(@mount_point + "/api/login", post_data)
+    @log.debug("login response :#{res.body}")
 
   end
 
   # ログアウトメソッド
   def logout
     res = @http.get(@mount_point + "/api/logout")
+    @log.debug("logout response :#{res.body}")
 
 #    return { "username" => "xxx",
 #    "password_hash" => "SHA-256でハッシュしたパスワード" }
@@ -249,7 +260,7 @@ proxy_passwd =  passwd
                          boundary=#{boundary}")
     end
 =end
-    #@log.debug("set_operation response :#{JSON.parse(res.body)}")
+    #@log.debug("upload response :#{JSON.parse(res.body)}")
   end
   # ドアの開錠コマンドを取得
   # TODO メソッド名は仮決め
@@ -259,7 +270,7 @@ proxy_passwd =  passwd
     res = @http.get(@mount_point + "api/XXX")
     return JSON.parse(res.body)
 =end
-    #@log.debug("set_operation response :#{JSON.parse(res.body)}")
+    #@log.debug("get_door_cmd response :#{JSON.parse(res.body)}")
     return {"61"=>{"operation_id"=>"813", "value"=>"xxx"}}
   end
 

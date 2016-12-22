@@ -11,7 +11,7 @@ require 'httpclient'
 require 'digest/sha2'
 require 'pry'
 require 'json'
-
+require "logger"
 
 # クラウド上のDatabaseアクセスクラス
 class CloudDatabaseAPI
@@ -32,6 +32,8 @@ class CloudDatabaseAPI
     #@http.set_proxy_auth(proxy_user, proxy_passwd)
     @http.set_auth(server, @USER, Digest::SHA256.hexdigest(@PASS))
 
+    @log = Logger.new("/tmp/cloud.log")
+    @log.level = Logger::DEBUG
   end
 
 =begin
@@ -54,12 +56,13 @@ proxy_passwd =  passwd
     monitor_range = { 'min' => min.to_s, 'max' => max.to_s }
     query_hash = { sensor_id => monitor_range }
     post_data = query_hash.to_json
-    debug("POST Data : #{post_data}")
+    #debug("POST Data : #{post_data}")
 
-#    res = @http.post(@mount_point + "/api/monitor", post_data)
-#    return JSON.parse(res.body)
+    res = @http.post(@mount_point + "/api/monitor", post_data)
+    @log.debug("set_monitor_range response :#{JSON.parse(res.body)}")
+    return JSON.parse(res.body)
 
-    return { "xxx" => { "min" =>  "下限値", "max" => "上限値" } }
+#    return { "xxx" => { "min" =>  "下限値", "max" => "上限値" } }
   end
 
   # センサの監視値（上限値・下限値）を取得するメソッド
@@ -67,55 +70,59 @@ proxy_passwd =  passwd
   #   @return [Hash]   monitor range in hash form  { "xxx": { "min": "下限値", "max": "上限値" } } (xxx: sensor_id)
   def get_monitor_range(sensor_id)
     query_hash = { 'sensor_id' => sensor_id }
-    debug("GET Query Data : #{query_hash.to_query}")
+    #debug("GET Query Data : #{query_hash.to_query}")
 
-#    res = @http.get(@mount_point + "/api/monitor?#{query_hash.to_query}")
-#    return JSON.parse(res.body)
+    res = @http.get(@mount_point + "/api/monitor?#{query_hash.to_query}")
+    @log.debug("get_monitor_range response :#{JSON.parse(res.body)}")
+    return JSON.parse(res.body)
 
-    return { "min" => "1.0", "max" => "28.0" }
+#    return { "min" => "1.0", "max" => "28.0" }
   end
 
   # センサーの測定データを登録
   #   @param [Integer]  sensor_id     センサーID
   #   @param [Integer]  sensing_data  センシングデータ
   def store_sensing_data(sensor_id, sensing_data)
-    debug("storeSensingData call")
+    #debug("storeSensingData call")
     query_hash = {sensor_id => sensing_data.to_s}
     post_data = query_hash.to_json
-    debug("POST Data : #{post_data}")
+    #debug("POST Data : #{post_data}")
 
-#    res = @http.post(@mount_point + "/api/sensor_data", post_data)
-#    return JSON.parse(res.body)
+    res = @http.post(@mount_point + "/api/sensor_data", post_data)
+    @log.debug("store_sensing_data response :#{JSON.parse(res.body)}")
+    return JSON.parse(res.body)
 
-    return { "xxx" => "23.0" }
+#    return { "xxx" => "23.0" }
   end
 
   # リモート操作指示状態を取得するメソッド
   #   @param [Integer] gateway_id ゲートウェイID
   def get_operation(gateway_id)
     query_hash = { 'gateway_id' => gateway_id }
-    p query_hash
-    debug("GET Query Data : #{query_hash.to_query}")
+    #p query_hash
+    #debug("GET Query Data : #{query_hash.to_query}")
 
-#    res = @http.get(@mount_point + "/api/operation?#{query_hash.to_query}")
-#    return JSON.parse(res.body)
+    res = @http.get(@mount_point + "/api/operation?#{query_hash.to_query}")
+    @log.debug("get_operation response :#{JSON.parse(res.body)}")
+    return JSON.parse(res.body)
 
-    return { "60" => { "operation_id" => "829", "value"  => "1" } }
+#    return { "60" => { "operation_id" => "829", "value"  => "1" } }
   end
 
   #  controllerへの操作指示を登録
   #   @param [Integer] gateway_id  ゲートウェイID
   #   @param [Integer] status      扇風機の状態
   def set_operation_status(gateway_id, status)
-    debug("setOperationStatus call")
+    #debug("setOperationStatus call")
     query_hash = {gateway_id => status.to_s}
     post_data = query_hash.to_json
-    debug("POST Data : #{post_data}")
+    #debug("POST Data : #{post_data}")
 
-#    res = @http.post(@mount_point + "/api/operation_status", post_data)
-#    return JSON.parse(res.body)
+    res = @http.post(@mount_point + "/api/operation_status", post_data)
+    @log.debug("set_operation_status response :#{JSON.parse(res.body)}")
+    return JSON.parse(res.body)
 
-    return { "xxx" => "1" }
+#    return { "xxx" => "1" }
   end
 
   # センサーの測定データを登録
@@ -127,12 +134,14 @@ proxy_passwd =  passwd
     monitor_range = {'value' => value, 'min' => min, 'max' => max}
     s_alert = { sensor_id => monitor_range }
     post_data = s_alert.to_json
-    debug("POST Data : #{post_data}")
+    #debug("POST Data : #{post_data}")
 
-#    res = @http.post(@mount_point + "/api/sensor_alert", post_data)
-#    return JSON.parse(res.body)
+    res = @http.post(@mount_point + "/api/sensor_alert", post_data)
+    @log.debug("set_sensor_alert response :#{JSON.parse(res.body)}")
 
-    return { "alert" => "< 0:無 | 1:有 >", "value" => "測定値","datetime" => "測定時刻", "min" => "下限値", "max" => "上限値" }
+    return JSON.parse(res.body)
+
+#    return { "alert" => "< 0:無 | 1:有 >", "value" => "測定値","datetime" => "測定時刻", "min" => "下限値", "max" => "上限値" }
   end
 
   # 指定したgatewayの配下にあるsensorのリストを取得
@@ -141,12 +150,13 @@ proxy_passwd =  passwd
   #   @see https://github.com/ossforumjp-app-IoT/rubyiot_server
   def get_sensor(gateway_id)
     query_hash = { 'gateway_id' => gateway_id }
-    debug("GET Query Data : #{query_hash.to_query}")
+    #debug("GET Query Data : #{query_hash.to_query}")
 
-#    response = @http.get(@mount_point + "/api/sensor?#{query_hash.to_query}")
-#    return JSON.parse(response.body)
+    response = @http.get(@mount_point + "/api/sensor?#{query_hash.to_query}")
+    @log.debug("get_sensor response :#{JSON.parse(res.body)}")
+    return JSON.parse(response.body)
 
-    return { "xxx" => { "name" => "センサーの任意の名前" } }
+#    return { "xxx" => { "name" => "センサーの任意の名前" } }
   end
 
   # sensorやcontrollerが接続されたdeviceを、登録・更新
@@ -176,14 +186,15 @@ proxy_passwd =  passwd
       ]
     }
     post_data = huid_hash.to_json
-    debug("POST Data : #{post_data}")
+    #debug("POST Data : #{post_data}")
 
-#    res = @http.post(@mount_point + "/api/device", post_data)
-#    return JSON.parse(res.body)
+    res = @http.post(@mount_point + "/api/device", post_data)
+    @log.debug("post_device response :#{JSON.parse(res.body)}")
+    return JSON.parse(res.body)
 
-    #    puts "--- 応答 ---"
-#    puts JSON.parse(res.body)
-    return {"2"=>[{"id"=>"60", "class_group_code"=>"0x00", "class_code"=>"0x00", "property_code"=>"0x30"}, {"id"=>"61", "class_group_code"=>"0x00", "class_code"=>"0x00", "property_code"=>"0x31"}]}
+    #puts "--- 応答 ---"
+    #puts JSON.parse(res.body)
+#    return {"2"=>[{"id"=>"60", "class_group_code"=>"0x00", "class_code"=>"0x00", "property_code"=>"0x30"}, {"id"=>"61", "class_group_code"=>"0x00", "class_code"=>"0x00", "property_code"=>"0x31"}]}
 
   end
 
@@ -206,8 +217,8 @@ proxy_passwd =  passwd
   def logout
     res = @http.get(@mount_point + "/api/logout")
 
-    return { "username" => "xxx",
-    "password_hash" => "SHA-256でハッシュしたパスワード" }
+#    return { "username" => "xxx",
+#    "password_hash" => "SHA-256でハッシュしたパスワード" }
   end
 
   # controllerへの操作指示を登録
@@ -217,10 +228,11 @@ proxy_passwd =  passwd
     post_hash = { controller_id => operation }
     post_data = post_hash.to_json
 
-#    res = @http.post(@mount_point + "/api/operation", post_data)
-#    return JSON.parse(response.body)
+    res = @http.post(@mount_point + "/api/operation", post_data)
+    @log.debug("set_operation response :#{JSON.parse(res.body)}")
+    return JSON.parse(response.body)
 
-    return {"61"=>{"operation_id"=>"813", "value"=>"1"}}
+#    return {"61"=>{"operation_id"=>"813", "value"=>"1"}}
   end
 
   # クラウドにファイルをアップロードするメソッド
@@ -237,6 +249,7 @@ proxy_passwd =  passwd
                          boundary=#{boundary}")
     end
 =end
+    #@log.debug("set_operation response :#{JSON.parse(res.body)}")
   end
   # ドアの開錠コマンドを取得
   # TODO メソッド名は仮決め
@@ -246,19 +259,20 @@ proxy_passwd =  passwd
     res = @http.get(@mount_point + "api/XXX")
     return JSON.parse(res.body)
 =end
-    return {"61"=>{"operation_id"=>"813", "value"=>"3"}}
+    #@log.debug("set_operation response :#{JSON.parse(res.body)}")
+    return {"61"=>{"operation_id"=>"813", "value"=>"xxx"}}
   end
 
   # Dummy class to notify alert
-  def notify_alert(gw_id, temp, min, max)
-    post_data =  { gw_id =>
-                  { "value" => temp,
-                    "min" => min,
-                    "max" => max } }
-
+#  def notify_alert(gw_id, temp, min, max)
+#    post_data =  { gw_id =>
+#                  { "value" => temp,
+#                    "min" => min,
+#                    "max" => max } }
+#
 #    res = @http.get(@mount_point + "/api/sensor_alert" + post_data.to_json)
-    res =   { "xxx" => { "value" => "測定値", "min" => "下限値", "max" => "上限値" } }
-  end
+#    res =   { "xxx" => { "value" => "測定値", "min" => "下限値", "max" => "上限値" } }
+#  end
 
 end
 

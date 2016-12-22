@@ -8,12 +8,11 @@ require_relative "sensor"
 require "thread"
 require "logger"
 
-
-
 # Main処理のパラメータ
 module MAIN_PARAMETER
   MAIN_LOOP = 1.0   # 1.0 second
   API_INTERVAL = 1.0 # 1.0 second
+  UPLOAD_COST_TIME = 1.0 # second (time required to finish uploading image)
 end
 
 module PROCEDURE_NAME
@@ -84,9 +83,11 @@ class Gateway
       if @data_hdr.file_search() == true then
          @log.info("Detecte image file.")
          @data_hdr.upload()
+		 sleep MAIN_PARAMETER::UPLOAD_COST_TIME
          @data_hdr.delete()
-         @api_worker[GET_DOOR_CMD].call(data)
-      end
+	  end
+	  
+	  @api_worker[GET_DOOR_CMD].call(data)
 
       @api_worker[GET_MONITORING_RANGE].call(data)
 
@@ -110,6 +111,7 @@ class Gateway
     end
     rescue Interrupt
       p "Program have finished by Ctrl+c"
+	  sleep 3
     end
 
     @data_hdr.logout()
@@ -133,13 +135,14 @@ class Gateway
       Thread.new {
         # ATTENTION ここをwhile文にしてるのはコマンドの指示がない場合を
         # 考慮しているため。
-        begin
-          res = @data_hdr.get_door_cmd(data)
-          ope_id = res[0]
-          cmd = res[1]
-          sleep MAIN_PARAMETER::API_INTERVAL
-        end unless cmd == ("2"||"3")
-        @data_hdr.cmd.push([data["addr"], ope_id, cmd])
+		# TODO
+        res = @data_hdr.get_door_cmd(data)
+        ope_id = res[0]
+        cmd = res[1]
+        
+		sleep MAIN_PARAMETER::API_INTERVAL
+        
+		@data_hdr.cmd.push([data["addr"], ope_id, cmd])
         @log.debug("Get door cmd :#{cmd}")
       }
     }

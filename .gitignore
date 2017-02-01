@@ -4,7 +4,7 @@
 /vendor/
 *.db
 *.log
-*.yml
+# *.yml
 
 ## Documentation cache and generated files:
 /.yardoc/

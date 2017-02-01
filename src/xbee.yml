@@ -1,0 +1,20 @@
+stcode: "7E"
+len: "00 1F"
+cmd: "10"
+frmid: "00"
+
+# LSI Xbeemodule
+#dstaddr   = "00 13 a2 00 40 b1 89 bc"
+# FAE Xbeemodule
+dstaddr: "00 13 a2 00 40 66 10 7e"
+
+localdst: "ff fe"
+option: "00 00"
+
+serialport:
+  device: "/dev/ttyUSB0"
+  # device: "dummy"
+  boudrate: 115200
+  databits: 8
+  stopbits: 1
+  parity: 0  # 0:none

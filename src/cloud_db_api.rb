@@ -110,7 +110,7 @@ proxy_passwd =  passwd
 
     @log.debug("#{self.class.name}: #{__method__}: GET: #{query_hash}")
     res = @http.get(@mount_point + "/api/operation?#{query_hash.to_query}")
-    @log.debug("g#{self.class.name}: #{__method__}: RESPONSE: #{JSON.parse(res.body)}")
+    @log.debug("#{self.class.name}: #{__method__}: RESPONSE: #{JSON.parse(res.body)}")
     #return JSON.parse(res.body)
 
      return { "60" => { "operation_id" => "829", "value"  => "1" } }
@@ -251,23 +251,21 @@ proxy_passwd =  passwd
   # TODO メソッド名とboundaryは仮決め。
   # 動作未確認
   def upload(filepath)
-=begin
+    @log.debug("#{self.class.name}: #{__method__}: CALLED:")
     boundary = "-------------------------------"
     open(filepath) do |file|
-      post_data = {"XXX"=>file}
-      @http.post_content(@mount_point + "/api/XXX", post_data,
-                         "content-type" => "multipart/form-data,
-                         boundary=#{boundary}")
+      post_data = {"file"=>file}
+      res = @http.post_content(@mount_point + "/api/door_image", post_data, "content-type" => "multipart/form-data, boundary=#{boundary}")
+
+      @log.debug("#{self.class.name}: #{__method__}: RESPONSE: #{JSON.parse(res.body)}")
     end
-=end
-    #@log.debug("#{self.class.name}: #{__method__}: RESPONSE: #{JSON.parse(res.body)}")
   end
   # ドアの開錠コマンドを取得
   # TODO メソッド名は仮決め
   # 動作未確認
   def get_door_cmd(xxx)
 =begin
-    res = @http.get(@mount_point + "api/XXX")
+    res = @http.get(@mount_point + "api/")
     return JSON.parse(res.body)
 =end
     #@log.debug("#{self.class.name}: #{__method__}: RESPONSE: #{JSON.parse(res.body)}")

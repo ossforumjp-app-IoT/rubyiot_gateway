@@ -8,7 +8,8 @@ class ImageFile
     #dir = "/home/tasaka/rubyiot_gateway/src"
     dir = "/home/pi/work_tasaka/rubyiot_gateway/src"
     #dir = "/home/pi/test_image_file"
-    filename = "raspberrypi.png"
+    #filename = "raspberrypi.png"
+    filename = "20161218.JPG"
     #filename = ""
     @filepath = dir + "/" + filename
     @flag = false

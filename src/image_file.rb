@@ -32,11 +32,3 @@ class ImageFile
 
 end
 
-#Debug
-if $0 == __FILE__ then
-  f = ImageFile.new
-  p f.flag
-  f.search
-  p f.flag
-  f.delete()
-end

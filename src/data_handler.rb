@@ -94,10 +94,23 @@ class DataHandler
 
   # ドア開錠コマンド取得のAPIを実行
   # TODO 引数と返り値の処理
-  def get_door_cmd(xxx)
+  def get_door_cmd()
     @log.debug("#{self.class.name}: #{__method__}: CALLED")
-    res = @cloud.get_door_cmd(xxx)
-    return res.values[0]["operation_id"], res.values[0]["value"]
+    res = @cloud.get_door_status()
+
+    #
+    # 人間 と犬
+    if res.values[0] && res.values[1]
+      return {"cmd" => 6}
+    # 人間だけ
+    elsif not res.values[1] && res.values[0]
+      return {"cmd" => 2}
+    # 犬だけ
+    elsif not res.values[0] && res.values[1]
+      return {"cmd" => 4}
+    else
+      return {"cmd" => 0}
+    end
   end
 
   # TODO Destructorを実装してログアウトしたい

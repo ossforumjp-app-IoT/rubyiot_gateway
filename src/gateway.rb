@@ -101,6 +101,7 @@ class Gateway
       l = @data_hdr.cmd.length
       l.times do
         q = @data_hdr.cmd.pop()
+        # TODO : ここでqueueuを生成から、operation idはなんでもよい
         result = @zigbee.send(q[2], @sensor.min, @sensor.max, q[0])
         @api_worker[SET_OPERATION_STATUS].call(q[1], result)
         @log.info("Send operation to sensor.")
@@ -138,8 +139,8 @@ class Gateway
         # 考慮しているため。
 		# TODO
         res = @data_hdr.get_door_cmd(data)
-        ope_id = res[0]
-        cmd = res[1]
+        ope_id = "666";
+        cmd =   res.values[0]
 
 		sleep MAIN_PARAMETER::API_INTERVAL
 

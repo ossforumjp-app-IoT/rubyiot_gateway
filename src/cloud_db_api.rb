@@ -34,7 +34,7 @@ class CloudDatabaseAPI
 
     @log = Logger.new("/tmp/cloud.log")
     @log.level = Logger::DEBUG
-   
+
     login()
 
   end
@@ -272,6 +272,12 @@ proxy_passwd =  passwd
     return {"61"=>{"operation_id"=>"813", "value"=>"xxx"}}
   end
 
+  def get_door_status()
+    res = @http.get(@mount_point + "api/door_status")
+    @log.debug("#{self.class.name}: #{__method__}: RESPONSE: #{JSON.parse(res.body)}")
+    return JSON.parse(res.body)
+#    return { “0”: true, “1”: false }
+  end
   # Dummy class to notify alert
 #  def notify_alert(gw_id, temp, min, max)
 #    post_data =  { gw_id =>

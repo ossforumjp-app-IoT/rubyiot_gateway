@@ -35,6 +35,8 @@ class ZigbeeHandler
 
   end
 
+end
+
 class ZigBeeReceiveFrame
   @@xbee = YAML.load_file './xbee.yml'
 

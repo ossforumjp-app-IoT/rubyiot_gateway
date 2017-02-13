@@ -3,12 +3,13 @@
 
 class Sensor
 
-  def initialize(min, max)
-    @min = min
-    @max = max
-    @addr = nil
+  attr_accessor :max, :min, :addr
+
+  def initialize(params = {})
+    @max = params.fetch(:max, "28")
+    @min = params.fetch(:min, "18")
+    @addr = params.fetch(:addr, nil);
   end
 
-  attr_accessor :max, :min, :addr
 
 end

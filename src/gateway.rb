@@ -44,7 +44,7 @@ class Gateway
   def initialize(id)
     @id = id
     # センサの温度異常値の初期値の渡し方を考えたほうがよい
-    @sensor = Sensor.new(10.0, 30.0)
+    @sensor = Sensor.new(:min => 10.0, :max => 30.0, :addr => nil)
     @data_hdr = DataHandler.new(@id)
     @api_worker = Hash.new
     @zigbee = Zigbee.new
@@ -81,13 +81,13 @@ class Gateway
       # 画像ファイル確認のポーリング
       # ここはまとめてハンドラにすべき?
       # if @data_hdr.file_search() == true then
-      if @data_hdr.file_search() then  
+      if @data_hdr.file_search() then
          @log.info("Detecte image file.")
          @data_hdr.upload()
 		 #  sleep MAIN_PARAMETER::UPLOAD_COST_TIME
          @data_hdr.delete()
 	  end
-	  
+
 	  @api_worker[GET_DOOR_CMD].call(data)
 
       @api_worker[GET_MONITORING_RANGE].call(data)
@@ -140,9 +140,9 @@ class Gateway
         res = @data_hdr.get_door_cmd(data)
         ope_id = res[0]
         cmd = res[1]
-        
+
 		sleep MAIN_PARAMETER::API_INTERVAL
-        
+
 		@data_hdr.cmd.push([data["addr"], ope_id, cmd])
         @log.debug("Get door cmd :#{cmd}")
       }

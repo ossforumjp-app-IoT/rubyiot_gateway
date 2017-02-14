@@ -12,8 +12,8 @@ localdst: "ff fe"
 option: "00 00"
 
 serialport:
-  device: "/dev/ttyUSB0"
-  # device: "dummy"
+  #device: "/dev/ttyUSB0"
+  device: "dummy"
   boudrate: 115200
   databits: 8
   stopbits: 1

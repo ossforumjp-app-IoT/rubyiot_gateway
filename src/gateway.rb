@@ -86,9 +86,9 @@ class Gateway
          @data_hdr.upload()
 		 #  sleep MAIN_PARAMETER::UPLOAD_COST_TIME
          @data_hdr.delete()
-	  end
+      end
 
-	  @api_worker[GET_DOOR_CMD].call(data)
+      @api_worker[GET_DOOR_CMD].call(data)
 
       @api_worker[GET_MONITORING_RANGE].call(data)
 
@@ -138,7 +138,7 @@ class Gateway
         # ATTENTION ここをwhile文にしてるのはコマンドの指示がない場合を
         # 考慮しているため。
 		# TODO
-        res = @data_hdr.get_door_cmd(data)
+        res = @data_hdr.get_door_cmd()
         ope_id = "666";
         cmd =   res.values[0]
 

@@ -103,10 +103,10 @@ class DataHandler
     if res.values[0] && res.values[1]
       return {"cmd" => 6}
     # 人間だけ
-    elsif not res.values[1] && res.values[0]
+    elsif res.values[0] 
       return {"cmd" => 2}
     # 犬だけ
-    elsif not res.values[0] && res.values[1]
+    elsif res.values[1]
       return {"cmd" => 4}
     else
       return {"cmd" => 0}

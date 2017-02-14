@@ -257,7 +257,8 @@ proxy_passwd =  passwd
       post_data = {"file"=>file}
       res = @http.post_content(@mount_point + "/api/door_image", post_data, "content-type" => "multipart/form-data, boundary=#{boundary}")
 
-      @log.debug("#{self.class.name}: #{__method__}: RESPONSE: #{JSON.parse(res.body)}")
+      #2017/2/14時点でのサーバの仕様が、画像が人以外と認識された場合、レスポンスは"N/A"のStringで返ってくる
+      @log.debug("#{self.class.name}: #{__method__}: RESPONSE: #{res}")
     end
   end
   # ドアの開錠コマンドを取得
@@ -273,7 +274,7 @@ proxy_passwd =  passwd
   end
 
   def get_door_status()
-    res = @http.get(@mount_point + "api/door_status")
+    res = @http.get(@mount_point + "/api/door_status")
     @log.debug("#{self.class.name}: #{__method__}: RESPONSE: #{JSON.parse(res.body)}")
     return JSON.parse(res.body)
 #    return { “0”: true, “1”: false }

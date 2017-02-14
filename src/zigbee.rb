@@ -214,6 +214,7 @@ class Zigbee
     begin
     frame = create(cmd, min, max, addr)
     @log.debug("#{frame.unpack("H*")}")
+    @log.debug("#{frame}")
     @sp.write(frame)
     result = 0
     rescue => e

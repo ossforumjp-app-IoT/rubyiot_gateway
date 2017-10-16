@@ -1,0 +1,5 @@
+source "http://rubygems.org"
+
+#gem "pi_piper"
+gem "ruby-opencv", "0.0.18"
+gem "rmagick", "2.16.0"

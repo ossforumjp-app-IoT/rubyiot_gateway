@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 require_relative 'cloud_db_api'
-#require_relative 'zigbee'
+require_relative 'zigbee'
 require_relative 'image_file'
 require "logger"
 
@@ -48,16 +48,16 @@ class DataHandler
   # ファイルをクラウドにアップロードする
   # @param [String] path ファイルパス
   # TODO
-  def upload(file)
+  def upload
     @log.debug("#{self.class.name}: #{__method__}: CALLED")
-    @cloud.upload(@file_hdr.filepath + file)
+    @cloud.upload(@file_hdr.filepath)
   end
 
   # ローカルに保存されているファイルを削除する
   # TODO
-  def delete(file)
+  def delete
     @log.debug("#{self.class.name}: #{__method__}: CALLED")
-    @file_hdr.delete(file)
+    @file_hdr.delete()
   end
 
   # クラウドに温度を通知する

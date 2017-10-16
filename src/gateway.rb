@@ -4,16 +4,16 @@
 require_relative "cloud_db_api"
 require_relative "data_handler"
 require_relative "ble_handler"
-require_relative "./picamera/picamera"
+#require_relative "./picamera/picamera"
 require "thread"
 require "logger"
 
 # Main処理のパラメータ
 module MAIN_PARAMETER
-  MAIN_LOOP = 0.5   # 0.5 second
+  MAIN_LOOP = 0.1   # 0.1 second
   API_INTERVAL = 1.0 # 1.0 second
   UPLOAD_COST_TIME = 1.0 # second (time required to finish uploading image)
-  AVERAGE_NUMBER = 5
+  AVERAGE_NUMBER = 10
 end
 
 # Gateway処理を行うクラス
@@ -36,7 +36,7 @@ class Gateway
     @log = Logger.new("/tmp/gateway.log")
     @log.level = Logger::DEBUG
     # DEBUG < INFO < WARN < ERROR < FATAL < UNKNOWN
-    @camera = Picamera.new
+    #@camera = Picamera.new
     @rssi_threshold = -58
     @rssis = Array.new
     @ble_hdr = BleHandler.new
@@ -46,8 +46,8 @@ class Gateway
   def main
     @log.info("#{__method__} start.")
 
-    # RSSIの値を5つ保存してからメイン文を実行
-    for num in 1..5 do
+    # RSSIの値を複数保存してからメイン文を実行
+    for num in 1..AVERAGE_NUMBER do
         @rssis.push(@ble_hdr.get_rssi())
         sleep MAIN_PARAMETER::MAIN_LOOP
     end
@@ -65,7 +65,7 @@ class Gateway
       rssi_ave = @rssis.inject(:+)
 
       if @rssi_threshold < rssi_ave then
-         @picamera.save()
+         #@camera.save()
          
          while @data_hdr.file_search()
            5.times do |i|
@@ -75,7 +75,7 @@ class Gateway
          end
 
          @rssis.clear()
-         for num in 1..5 do
+         for num in 1..AVERAGE_NUMBER do
              @rssis.push(@ble_hdr.get_rssi())
              sleep MAIN_PARAMETER::MAIN_LOOP
          end

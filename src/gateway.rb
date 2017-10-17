@@ -4,7 +4,7 @@
 require_relative "cloud_db_api"
 require_relative "data_handler"
 require_relative "ble_handler"
-#require_relative "./picamera/picamera"
+require_relative "./picamera/picamera"
 require "thread"
 require "logger"
 
@@ -15,6 +15,8 @@ module MAIN_PARAMETER
   UPLOAD_COST_TIME = 1.0 # second (time required to finish uploading image)
   AVERAGE_NUMBER = 10
 end
+
+include MAIN_PARAMETER
 
 # Gateway処理を行うクラス
 # ATTENSTION センサをひとつしかもてない
@@ -36,8 +38,8 @@ class Gateway
     @log = Logger.new("/tmp/gateway.log")
     @log.level = Logger::DEBUG
     # DEBUG < INFO < WARN < ERROR < FATAL < UNKNOWN
-    #@camera = Picamera.new
-    @rssi_threshold = -58
+    @camera = Picamera.new
+    @rssi_threshold = -50
     @rssis = Array.new
     @ble_hdr = BleHandler.new
   end
@@ -48,7 +50,7 @@ class Gateway
 
     # RSSIの値を複数保存してからメイン文を実行
     for num in 1..AVERAGE_NUMBER do
-        @rssis.push(@ble_hdr.get_rssi())
+        @rssis.push(@ble_hdr.get_rssi)
         sleep MAIN_PARAMETER::MAIN_LOOP
     end
 
@@ -62,15 +64,18 @@ class Gateway
       # RSSI値の個数が平均を取る個数より1つ多いので最初に取得したものを削除
       @rssis.shift()
 
-      rssi_ave = @rssis.inject(:+)
+      rssi_ave = (@rssis.inject(:+))/AVERAGE_NUMBER
+
+      @log.info("rssi_ave: #{rssi_ave}")
+      @log.info("rssis:    #{@rssis}")
 
       if @rssi_threshold < rssi_ave then
-         #@camera.save()
+         @camera.save()
          
          while @data_hdr.file_search()
            5.times do |i|
-                @data_hdr.upload(i.to_s + "jpg")
-                @data_hdr.delete(i.to_s + "jpg")
+                @data_hdr.upload(i.to_s + ".jpg")
+                @data_hdr.delete(i.to_s + ".jpg")
            end
          end
 

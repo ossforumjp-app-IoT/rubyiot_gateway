@@ -4,12 +4,12 @@
 require 'rubygems'
 require 'uri'
 require 'net/http'
-require 'active_record'
-require 'active_support/core_ext'
+#require 'active_record'
+#require 'active_support/core_ext'
 
 require 'httpclient'
 require 'digest/sha2'
-require 'pry'
+#require 'pry'
 require 'json'
 require "logger"
 

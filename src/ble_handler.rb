@@ -18,10 +18,6 @@ class BleHandler
     }
   end
  
-  def analyze_rssi(packet)
-    return (packet[packet.length-1].hex - 256).to_s
-  end
-
   def analyze()
     mac = ""
     rssi = 1

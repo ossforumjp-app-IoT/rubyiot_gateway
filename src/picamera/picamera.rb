@@ -7,8 +7,8 @@ $distort = :none
 
 class Picamera
     def initialize
-        @tmp_dir = "rmagick_img/tmp/"
-        @upload_dir = "rmagick_img/upload/"
+        @tmp_dir = "/home/pi/rubyiot_gateway/src/picamera/rmagick_img/tmp/"
+        @upload_dir = "/home/pi/rubyiot_gateway/src/picamera/rmagick_img/upload/"
         @save_format = ".jpg"
         @rmagick_format = 'JPEG'
         if $distort == :barrel then
@@ -67,11 +67,11 @@ end
 
 
 #------ for check ------
-=begin
 
 camera = Picamera.new
 
 camera.save
+=begin
 
 =end
 #------ for check ------

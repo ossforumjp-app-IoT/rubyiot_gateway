@@ -8,7 +8,7 @@ class ImageFile
 
   def initialize
 #    @filepath = "/tmp/capture_image.jpg"
-    @filepath = "/home/tasaka/rubyiot_gateway/src/picamera/rmagick_img/upload/"
+    @filepath = "/home/pi/rubyiot_gateway/src/picamera/rmagick_img/upload/"
     @flag = false
     @log = Logger.new("/tmp/image_file.log")
     @log.level = Logger::DEBUG
@@ -17,11 +17,11 @@ class ImageFile
 
   def search
     @flag = false
-    @flag = true if (File.exist?(@filepath + "1.jpg") ||
+    @flag = true if (File.exist?(@filepath + "0.jpg") ||
+                     File.exist?(@filepath + "1.jpg") ||
                      File.exist?(@filepath + "2.jpg") ||
                      File.exist?(@filepath + "3.jpg") ||
-                     File.exist?(@filepath + "4.jpg") ||
-                     File.exist?(@filepath + "5.jpg"))
+                     File.exist?(@filepath + "4.jpg")) 
     @log.debug("#{self.class.name}: #{__method__}  File flag :#{@flag}")
     return @flag
   end

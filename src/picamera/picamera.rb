@@ -19,7 +19,7 @@ class Picamera
 
     def save
         today = DateTime.now
-=begin
+#=begin
         save_time = sprintf("%04d%02d%02d%02d%02d%02d",
             today.year.to_s,
             today.mon.to_s,
@@ -27,10 +27,10 @@ class Picamera
             today.hour.to_s,
             today.min.to_s,
             today.sec.to_s)
-=end
+#=end
         5.times do |i|
-             filename = i.to_s + @save_format
-#            filename = save_time + "_" + i.to_s + @save_format
+#             filename = i.to_s + @save_format
+            filename = save_time + "_" + i.to_s + @save_format
 #            filename = save_time + @save_format
             capture = OpenCV::CvCapture.open
             if $distort == :none then
@@ -62,6 +62,7 @@ class Picamera
                 File.delete(@tmp_dir + filename)
             end
         end
+        return save_time
     end
 end
 

@@ -15,14 +15,10 @@ class ImageFile
   end
 
 
-  def search
+  def search(file)
     @flag = false
-    @flag = true if (File.exist?(@filepath + "0.jpg") ||
-                     File.exist?(@filepath + "1.jpg") ||
-                     File.exist?(@filepath + "2.jpg") ||
-                     File.exist?(@filepath + "3.jpg") ||
-                     File.exist?(@filepath + "4.jpg")) 
-    @log.debug("#{self.class.name}: #{__method__}  File flag :#{@flag}")
+    @flag = true if (File.exist?(@filepath + file))
+    @log.debug("#{self.class.name}: #{__method__}  File flag: #{@flag} File name: #{file}")
     return @flag
   end
 

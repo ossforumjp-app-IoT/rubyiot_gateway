@@ -40,9 +40,9 @@ class DataHandler
   # ファイルを検索する
   # @return [Boolean] True:ファイル発見 False:ファイル未発見
   # TODO
-  def file_search()
+  def file_search(file)
     @log.debug("#{self.class.name}: #{__method__}: CALLED")
-    return @file_hdr.search
+    return @file_hdr.search(file)
   end
 
   # ファイルをクラウドにアップロードする

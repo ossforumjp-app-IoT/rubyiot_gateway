@@ -50,6 +50,7 @@ class Picamera
                     img = Magick::Image.read(@tmp_dir + filename).first
                     img.format = @rmagick_format
                     img.write(@upload_dir + filename){self.quality = 32}
+#                    img.write(@upload_dir + filename){self.quality = 80}
                     img.destroy!
                 elsif $distort == :barrel then
                     img = Magick::Image.read(@tmp_dir + filename).first

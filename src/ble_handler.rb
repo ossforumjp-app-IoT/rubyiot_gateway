@@ -12,7 +12,8 @@ class BleHandler
       fork {
         @pin1.close
         STDOUT.reopen(@pout1)
-        cmd = "stdbuf -o0 #{btmon}"
+        #cmd = "stdbuf -o0 #{btmon}"
+        cmd = "#{btmon}"
         exec cmd
       }
     }
@@ -44,6 +45,11 @@ class BleHandler
     mac, rssi = analyze()
     return rssi
   end
+
+
+ def flush()
+    @pin1.flush()
+ end
 end
 
 =begin

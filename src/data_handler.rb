@@ -1,4 +1,3 @@
-#!/usr/bin/ruby -Ku
 # encoding: utf-8
 
 require_relative 'cloud_db_api'
@@ -41,7 +40,7 @@ class DataHandler
   # @return [Boolean] True:ファイル発見 False:ファイル未発見
   # TODO
   def file_search(file)
-    @log.debug("#{self.class.name}: #{__method__}: CALLED")
+    #@log.debug("#{self.class.name}: #{__method__}: CALLED")
     return @file_hdr.search(file)
   end
 
@@ -49,14 +48,14 @@ class DataHandler
   # @param [String] path ファイルパス
   # TODO
   def upload(file)
-    @log.debug("#{self.class.name}: #{__method__}: CALLED")
+    #@log.debug("#{self.class.name}: #{__method__}: CALLED")
     @cloud.upload(@file_hdr.filepath + file)
   end
 
   # ローカルに保存されているファイルを削除する
   # TODO
   def delete(file)
-    @log.debug("#{self.class.name}: #{__method__}: CALLED")
+    #@log.debug("#{self.class.name}: #{__method__}: CALLED")
     @file_hdr.delete(file)
   end
 
@@ -95,7 +94,7 @@ class DataHandler
   # ドア開錠コマンド取得のAPIを実行
   # TODO 引数と返り値の処理
   def get_door_cmd()
-    @log.debug("#{self.class.name}: #{__method__}: CALLED")
+    #@log.debug("#{self.class.name}: #{__method__}: CALLED")
     res = @cloud.get_door_status()
 
     #
@@ -115,7 +114,7 @@ class DataHandler
 
   # TODO Destructorを実装してログアウトしたい
   def logout
-    @log.debug("#{self.class.name}: #{__method__}: CALLED")
+    #@log.debug("#{self.class.name}: #{__method__}: CALLED")
 #    @cloud.logout()
   end
 

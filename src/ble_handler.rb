@@ -17,16 +17,16 @@ class BleHandler
         exec cmd
       }
     }
+
+
   end
  
   def analyze()
-    mac = ""
     rssi = 1
     while true
        line1 = @pin1.gets
        if line1[8..15].to_s == "Address:" then
           if @target_mac == line1[17..33] then
-             mac == line1[17..33]
              while true
                 line2 = @pin1.gets
                 if line2[8..12] == "RSSI:" then
@@ -38,17 +38,18 @@ class BleHandler
           end
        end
     end
-    return mac, rssi
+    return rssi
   end
 
   def get_rssi()
-    mac, rssi = analyze()
+    rssi = analyze()
     return rssi
   end
 
 
  def flush()
     @pin1.flush()
+    @pout1.flush()
  end
 end
 

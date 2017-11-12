@@ -14,6 +14,8 @@ module MAIN_PARAMETER
   API_INTERVAL = 1.0 # 1.0 second
   UPLOAD_COST_TIME = 1.0 # second (time required to finish uploading image)
   AVERAGE_NUMBER = 10
+  RSSI_THRESHOLD_OFFSET = 6
+  THRESHOLD = -67
 end
 
 include MAIN_PARAMETER
@@ -66,7 +68,8 @@ class Gateway
     for num in 1..50 do
         ave = ave + @ble_hdr.get_rssi
     end
-    @rssi_threshold = ave/50 + 6
+#    @rssi_threshold = ave/50 + RSSI_THRESHOLD_OFFSET
+    @rssi_threshold = THRESHOLD + RSSI_THRESHOLD_OFFSET
     @log.info("Threshold: #{@rssi_threshold}")
 
     # RSSIの値を複数保存してからメイン文を実行
@@ -78,7 +81,7 @@ class Gateway
     begin
     while true
 
-      puts @rssis
+      #puts @rssis
 
       # RSSI値の取得
       @rssis.push(@ble_hdr.get_rssi())
@@ -90,26 +93,32 @@ class Gateway
       #@log.info("rssi_ave: #{rssi_ave}")
       #@log.info("rssis:    #{@rssis}")
       if @rssi_threshold < rssi_ave then
+         t = Thread.new {
+           while true
+             @ble_hdr.get_rssi()
+           end
+         }
          save_time = @camera.save()
-         @log.info("Photographing!!!")
-     	 @log.info("rssi_ave: #{rssi_ave}")
-   	 @log.info("rssis:    #{@rssis}")
+         @log.info("Photographing!!! RSSI_AVE: #{rssi_ave}")
+     	 #@log.info("rssi_ave: #{rssi_ave}")
+   	 #@log.info("rssis:    #{@rssis}")
 
          @file[0] = save_time + "_0" + @save_format
          @file[1] = save_time + "_1" + @save_format
          @file[2] = save_time + "_2" + @save_format
          @file[3] = save_time + "_3" + @save_format
          @file[4] = save_time + "_4" + @save_format
-#=begin
+
          5.times do |i|
            while @data_hdr.file_search(@file[i])
-                @data_hdr.upload(@file[i])
+                #@data_hdr.upload(@file[i])
+		sleep 1
                 @data_hdr.delete(@file[i])
            end
          end
-#=end         
+
          @rssis.clear()
-         #@ble_hdr.flush()
+         Thread.kill(t)
          for num in 1..AVERAGE_NUMBER do
              @rssis.push(@ble_hdr.get_rssi())
              sleep MAIN_PARAMETER::MAIN_LOOP

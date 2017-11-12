@@ -70,9 +70,9 @@ end
 
 #------ for check ------
 
-camera = Picamera.new
+#camera = Picamera.new
 
-camera.save
+#camera.save
 =begin
 
 =end

@@ -18,7 +18,7 @@ class ImageFile
   def search(file)
     @flag = false
     @flag = true if (File.exist?(@filepath + file))
-    @log.debug("#{self.class.name}: #{__method__}  File flag: #{@flag} File name: #{file}")
+    #@log.debug("#{self.class.name}: #{__method__}  File flag: #{@flag} File name: #{file}")
     return @flag
   end
 
@@ -28,7 +28,7 @@ class ImageFile
       File.delete(@filepath + file)
       @flag = false
     rescue => e
-      @log.error("#{self.class.name} : #{__method__} : #{e.message}");
+      #@log.error("#{self.class.name} : #{__method__} : #{e.message}");
     end
   end
 
